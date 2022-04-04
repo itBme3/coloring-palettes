@@ -80,14 +80,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-input {
-  background: transparent;
-  border: 0 !important;
-  border-radius: 0.1rem;
-  &:hover {
-    outline: 2px solid rgb(150, 150, 160);
-  }
-}
-</style>

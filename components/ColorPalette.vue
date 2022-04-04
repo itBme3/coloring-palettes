@@ -3,16 +3,9 @@
     v-if="palette && palette.name"
     class="color-palette mx-auto w-full relative"
   >
-    <input
-      ref="nameInput"
-      class="title relative z-10 text-4xl"
-      type="text"
-      :value="palette.name"
-      @input="updatePaletteName"
-    />
-    <div class="toggle-buttons flex space-x-2 my-3">
+    <div class="toggle-buttons flex space-x-2 my-3 relative z-9">
       <button
-        v-for="editView in ['colors', 'mixing']"
+        v-for="editView in ['palette', 'mixing']"
         :key="editView"
         @click="view = editView"
         class="hover:bg-white hover:text-shade-20"
@@ -23,18 +16,44 @@
         {{ editView }}
       </button>
     </div>
-    <div
-      v-if="view === 'colors'"
-      class="color-palette-colors flex flex-col space-y-2"
-    >
-      <ColorSwatch
-        v-for="(color, i) in palette.colors"
-        :key="color.value + i"
-        :color="color"
-        swatch-style="list-item"
+    <transition name="down-fade" :duration="{ enter: 200, leave: 100 }">
+      <input
+        v-if="view === 'palette'"
+        ref="nameInput"
+        class="
+          title
+          relative
+          z-10
+          text-4xl
+          mb-3
+          border-none
+          outline-none
+          border-transparent
+          outline-transparent
+          ring-transparent
+          hover:bg-shade-60
+        "
+        type="text"
+        :value="palette.name"
+        @input="updatePaletteName"
       />
-    </div>
-    <ColorMixing v-else-if="view === 'mixing'" :palette-id="palette.id" />
+    </transition>
+    <transition name="up-fade" :duration="{ enter: 500, leave: 100 }">
+      <div
+        v-if="view === 'palette'"
+        class="color-palette-colors flex flex-col space-y-2"
+        style="transition-delay: 0.2s !important"
+      >
+        <ColorSwatch
+          v-for="(color, i) in palette.colors"
+          :key="color.value + i"
+          :color="color"
+          :delay-show="i * 100"
+          swatch-style="list-item"
+        />
+      </div>
+    </transition>
+    <ColorMixing v-if="view === 'mixing'" :palette-id="palette.id" />
     <ColorPaletteActions :palette="palette" @rename="focusInput" />
   </div>
 </template>
@@ -50,8 +69,11 @@ export default {
   },
   data() {
     return {
-      view: 'colors',
+      view: null,
     };
+  },
+  mounted() {
+    this.view = 'palette';
   },
   computed: {
     ...mapGetters({

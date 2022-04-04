@@ -4,7 +4,7 @@
 
 input,
 textarea {
-  @apply outline-transparent border-transparent py-1 px-2 text-base focus:ring-purple-500 rounded bg-shade-30;
+  @apply outline-transparent border-transparent py-1 px-2 text-base focus:ring-purple-500 focus:ring-2 rounded bg-shade-30;
   transition: all 0.1s ease-in;
   color: rgb(220, 220, 230);
 }
@@ -24,6 +24,9 @@ input {
       width: 0;
       height: 0;
     }
+  }
+  &.title {
+    @apply hover:bg-shade-40 hover:shadow-lg focus:shadow-lg focus:bg-shade-40 scale-100 transition-all ease-in-out hover:scale-103 focus:scale-103;
   }
 }
 
@@ -53,5 +56,12 @@ input {
         display: none;
       }
     }
+  }
+}
+
+.form-field {
+  @apply hover:bg-shade-50 focus-within:bg-shade-50 flex items-center p-2 border border-shade-50 hover:border-shade-50 focus-within:border-shade-50 content-start rounded;
+  input {
+    @apply bg-transparent;
   }
 }

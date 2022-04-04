@@ -1,22 +1,31 @@
 <template>
   <div class="color-mixing">
-    <div class="toggle-buttons space-x-2">
-      <button
-        v-for="editView in ['scale', 'shade', 'random']"
-        :key="editView"
-        class="hover:bg-white hover:text-shade-20 text-sm"
-        :class="{
-          'bg-white text-shade-20': editView === view,
-        }"
-        @click="view = editView"
-      >
-        {{ editView }}
-      </button>
-    </div>
+    <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
+      <div v-if="view" class="toggle-buttons space-x-2">
+        <button
+          v-for="editView in ['scale', 'shade', 'random']"
+          :key="editView"
+          class="hover:bg-white hover:text-shade-20 text-sm"
+          :class="{
+            'bg-white text-shade-20': editView === view,
+          }"
+          @click="view = editView"
+        >
+          {{ editView }}
+        </button>
+      </div>
+    </transition>
+    <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
+      <ColorMixingScale v-if="view === 'scale'" :palette="palette" />
+    </transition>
 
-    <ColorMixingScale v-if="view === 'scale'" :palette="palette" />
-  
+    <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
+      <ColorMixingShade v-if="view === 'shade'" :palette="palette" />
+    </transition>
 
+    <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
+      <ColorMixingRandom v-if="view === 'random'" :palette="palette" />
+    </transition>
   </div>
 </template>
 
@@ -30,7 +39,10 @@ export default {
     },
   },
   data() {
-    return { view: 'scale' };
+    return { view: null };
+  },
+  mounted() {
+    this.view = 'scale';
   },
   computed: {
     ...mapGetters({
