@@ -11,7 +11,6 @@ export const state = () => {
   return {
     collections: [],
     palettes: [],
-    addedColors: [],
   };
 };
 
@@ -86,8 +85,13 @@ export const mutations = {
     if (!palette || objectsAreTheSame(colors, palette.colors)) {
       return;
     }
+    console.log({ colors });
     palettes.filter((c) => c.id === paletteId)[0].colors = colors;
-    state.palettes = Object.assign({}, state.palettes, palettes);
+    state.palettes = [];
+    state.palettes.forEach((p) =>
+      state.palettes.push(p.id === paletteId ? { ...p, colors } : p)
+    );
+    console.log(state.palettes);
   },
 
   setEditing(state, params) {
@@ -106,10 +110,6 @@ export const mutations = {
       return;
     }
     state.editing = Object.assign({}, state.editing, stateOfEditing);
-  },
-  setAddedColors(state, colors) {
-    const value = Array.isArray(colors) ? colors : [];
-    state.addedColors = value;
   },
 };
 
@@ -159,9 +159,8 @@ export const actions = {
       paletteId = params?.palette?.id || null,
       merge = false,
     } = params || {};
-    const currentPalette = state?.palettes?.filter(
-      (c) => c.id === paletteId
-    )[0];
+    const storedPalettes = this.getters?.storedPalettes || [];
+    const currentPalette = storedPalettes?.filter((c) => c.id === paletteId)[0];
     if (!paletteId) {
       return console.error('paletteId not provided');
     }
@@ -171,12 +170,13 @@ export const actions = {
     const data = merge
       ? { ...currentPalette, ...palette }
       : { ...palette, id: paletteId };
-    const palettes = state.palettes.reduce((acc, c) => {
+    const palettes = storedPalettes.reduce((acc, c) => {
       if (c.id === paletteId) {
         return [...acc, data];
       }
       return [...acc, c];
     }, []);
+    console.log({ palettes });
     commit('setPalettes', palettes);
   },
 
@@ -189,32 +189,22 @@ export const actions = {
     );
   },
 
-  addColorToPalette({ state, commit }, params) {
+  addColorToPalette({ state, commit, dispatch }, params) {
     const { paletteId, color } = params;
-    const palette = this.getters.storedPalettes?.filter(
-      (c) => c.id === paletteId
-    )[0];
+    const palette = JSON.parse(
+      JSON.stringify(
+        this.getters.storedPalettes?.filter((c) => c.id === paletteId)[0]
+      )
+    );
     if (!palette) {
       return console.log(`could not find palette with id: ${paletteId}`);
     }
-    palette.colors.unshift(color);
-    commit('setColorsOnPalette', {
+    palette.colors.unshift({ ...color, createdAt: Date.now() });
+    dispatch('updatePalette', {
       paletteId: palette.id,
-      colors: palette.colors,
+      palette,
+      merge: false,
     });
-    const addedColors = Array.isArray(state.addedColors)
-      ? state.addedColors
-      : [];
-    console.log({ addedColors: [...addedColors, color] });
-    commit('setAddedColors', [...addedColors, color]);
-    // setTimeout(() => {
-    //   commit(
-    //     'setAddedColors',
-    //     this.getters.localStorage?.newColors?.filter(
-    //       (c) => c.id !== color.id
-    //     ) || []
-    //   );
-    // }, 500);
   },
 
   addPaletteToCollection({ state, commit }, params) {
@@ -238,9 +228,6 @@ export const getters = {
   palettes(state) {
     return state?.palettes?.length > 0 ? state.palettes : initialPalettes;
   },
-  newColors(state) {
-    return state.addedColors;
-  },
   editingPalette(state) {
     return state?.palettes?.filter((p) => p.id === state?.palette)[0] || null;
   },
@@ -258,9 +245,5 @@ export const getters = {
     const palette =
       state?.palettes?.filter((p) => p.id === state?.palette)[0] || null;
     return palette?.colors || [];
-  },
-  newColors(state) {
-    const colors = Array.isArray(state?.addedColors) ? state.addedColors : [];
-    return colors;
   },
 };

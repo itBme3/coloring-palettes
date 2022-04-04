@@ -52,9 +52,7 @@
           :color="color"
           :delay-show="i * 100"
           :class="{
-            'wiggle delay-500': Array.isArray(newColors)
-              ? newColors.map((c) => c.id).includes(color.id)
-              : false,
+            'just-added delay-500': Date.now() - color.createdAt < 3000,
           }"
           :swatch-style="isSidebar && sidebarCollapsed ? 'simple' : 'list-item'"
           :clickable="!sidebarCollapsed || !isSidebar"

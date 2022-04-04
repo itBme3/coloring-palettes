@@ -61,7 +61,11 @@
   animation: left-fade 0.2s reverse;
 }
 .wiggle {
-  animation: wiggle 0.3s alternate 10;
+  animation: wiggle 0.5s alternate 3;
+  animation-timing-function: ease;
+}
+.just-added {
+  animation: wiggle 0.35s alternate 3 0.5s ease;
 }
 
 @keyframes scale {
@@ -160,7 +164,7 @@
     transform: rotate(0deg);
   }
   75% {
-    transform: rotate(-deg);
+    transform: rotate(-10deg);
   }
   100% {
     transform: rotate(0deg);
