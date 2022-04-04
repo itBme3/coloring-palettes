@@ -52,7 +52,7 @@
           :color="color"
           :delay-show="i * 100"
           :class="{
-            wiggle: Array.isArray(newColors)
+            'wiggle delay-500': Array.isArray(newColors)
               ? newColors.map((c) => c.id).includes(color.id)
               : false,
           }"
@@ -103,9 +103,11 @@ export default {
   },
   computed: {
     ...mapGetters({
-      newColors: 'localStorage/newColors',
       storedPalettes: 'storedPalettes',
     }),
+    newColors() {
+      return this.$store.state?.localStorage?.addedColors || [];
+    },
     palette() {
       return (
         this.storedPalettes?.filter((p) => p.id === this.paletteId)[0] || null

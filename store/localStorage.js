@@ -109,7 +109,7 @@ export const mutations = {
   },
   setAddedColors(state, colors) {
     const value = Array.isArray(colors) ? colors : [];
-    state.addedColors = Object.assign({}, state.addedColors, value);
+    state.addedColors = value;
   },
 };
 
@@ -205,6 +205,7 @@ export const actions = {
     const addedColors = Array.isArray(state.addedColors)
       ? state.addedColors
       : [];
+    console.log({ addedColors: [...addedColors, color] });
     commit('setAddedColors', [...addedColors, color]);
     // setTimeout(() => {
     //   commit(
@@ -238,7 +239,7 @@ export const getters = {
     return state?.palettes?.length > 0 ? state.palettes : initialPalettes;
   },
   newColors(state) {
-    return state?.addedColors || [];
+    return state.addedColors;
   },
   editingPalette(state) {
     return state?.palettes?.filter((p) => p.id === state?.palette)[0] || null;
