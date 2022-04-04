@@ -6,6 +6,7 @@
       collapsed: isSidebar && sidebarCollapsed,
     }"
   >
+    {{ newColors }}
     <button
       v-if="isSidebar"
       @click="sidebarCollapsed = !sidebarCollapsed"
@@ -65,11 +66,12 @@
 
 <script>
 import { debounce } from 'lodash';
+import { mapGetters } from 'vuex';
 export default {
   props: {
-    palette: {
-      type: Object,
-      default: () => null,
+    paletteId: {
+      type: String,
+      default: null,
     },
     isSidebar: {
       type: Boolean,
@@ -102,7 +104,13 @@ export default {
   computed: {
     ...mapGetters({
       newColors: 'localStorage/newColors',
+      storedPalettes: 'storedPalettes',
     }),
+    palette() {
+      return (
+        this.storedPalettes?.filter((p) => p.id === this.paletteId)[0] || null
+      );
+    },
   },
   methods: {
     updatePaletteName: debounce(function (e) {

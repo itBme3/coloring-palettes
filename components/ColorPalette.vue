@@ -20,7 +20,7 @@
     <ColorPaletteDetails
       v-if="view === 'palette'"
       ref="paletteDetails"
-      :palette="palette"
+      :palette-id="palette.id"
     />
     <ColorMixing
       v-if="view === 'mixing'"
@@ -39,7 +39,7 @@
         v-if="view === 'mixing'"
         ref="paletteDetailsSidebar"
         class="is-sidebar"
-        :palette="palette"
+        :palette-id="palette.id"
         :is-sidebar="true"
         @sidebarToggle="setSidebarWidth()"
       />

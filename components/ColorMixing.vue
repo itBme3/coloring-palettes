@@ -16,7 +16,11 @@
       </div>
     </transition>
     <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
-      <ColorMixingScale v-if="view === 'scale'" :palette="palette" />
+      <ColorMixingScale
+        v-if="view === 'scale'"
+        :palette="palette"
+        @selectedColor="(e) => newColor(e)"
+      />
     </transition>
 
     <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
@@ -52,6 +56,14 @@ export default {
       return (
         this.storedPalettes.filter((p) => p.id === this.paletteId)[0] || null
       );
+    },
+  },
+  methods: {
+    newColor(color) {
+      this.$store.dispatch('localStorage/addColorToPalette', {
+        color,
+        paletteId: this.palette.id,
+      });
     },
   },
 };

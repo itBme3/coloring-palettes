@@ -81,13 +81,13 @@ export const mutations = {
     if (!paletteId) {
       return;
     }
-    const palettes = JSON.parse(JSON.stringify(state?.palettes || []));
-    const palette = palettes?.filter((c) => c.id === paletteId)[0];
+    const palettes = this.getters.storedPalettes;
+    const palette = palettes.filter((c) => c.id === paletteId)[0];
     if (!palette || objectsAreTheSame(colors, palette.colors)) {
       return;
     }
-    palette.colors = colors;
-    state.user.palettes = Object.assign({}, state.user.palettes, palettes);
+    palettes.filter((c) => c.id === paletteId)[0].colors = colors;
+    state.palettes = Object.assign({}, state.palettes, palettes);
   },
 
   setEditing(state, params) {
@@ -106,6 +106,10 @@ export const mutations = {
       return;
     }
     state.editing = Object.assign({}, state.editing, stateOfEditing);
+  },
+  setAddedColors(state, colors) {
+    const value = Array.isArray(colors) ? colors : [];
+    state.addedColors = Object.assign({}, state.addedColors, value);
   },
 };
 
@@ -193,17 +197,23 @@ export const actions = {
     if (!palette) {
       return console.log(`could not find palette with id: ${paletteId}`);
     }
-    palette.colors.ushift(color);
+    palette.colors.unshift(color);
     commit('setColorsOnPalette', {
       paletteId: palette.id,
       colors: palette.colors,
     });
-    commit('setAddedColors', [...(state?.addedColors || []), color]);
-    setTimeout(() => {
-      commit('setAddedColors', [
-        ...(state?.addedColors || []).filter((c) => c.id !== color.id),
-      ]);
-    }, 500);
+    const addedColors = Array.isArray(state.addedColors)
+      ? state.addedColors
+      : [];
+    commit('setAddedColors', [...addedColors, color]);
+    // setTimeout(() => {
+    //   commit(
+    //     'setAddedColors',
+    //     this.getters.localStorage?.newColors?.filter(
+    //       (c) => c.id !== color.id
+    //     ) || []
+    //   );
+    // }, 500);
   },
 
   addPaletteToCollection({ state, commit }, params) {
@@ -247,5 +257,9 @@ export const getters = {
     const palette =
       state?.palettes?.filter((p) => p.id === state?.palette)[0] || null;
     return palette?.colors || [];
+  },
+  newColors(state) {
+    const colors = Array.isArray(state?.addedColors) ? state.addedColors : [];
+    return colors;
   },
 };
