@@ -1,0 +1,9 @@
+<template>
+  <client-only>
+    <ColorPalette
+      v-if="$route.params.id"
+      class="page"
+      :palette-id="$route.params.id"
+    />
+  </client-only>
+</template>

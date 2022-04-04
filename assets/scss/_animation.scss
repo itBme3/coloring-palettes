@@ -1,0 +1,54 @@
+.scale-enter-active {
+  animation: scale 0.3s;
+}
+.scale-fade-enter-active {
+  animation: scale-fade 0.3s;
+}
+.scale-fade-pop-enter-active {
+  animation: scale-fade-pop 0.3s;
+}
+
+.scale-leave-active {
+  animation: scale 0.2s reverse;
+}
+.scale-fade-leave-active {
+  animation: scale-fade 0.2s reverse;
+}
+.scale-fade-pop-leave-active {
+  animation: scale-fade-pop 0.2s reverse;
+}
+
+@keyframes scale {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes scale-fade {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scale-fade-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  90% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

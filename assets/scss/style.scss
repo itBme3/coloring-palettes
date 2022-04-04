@@ -1,0 +1,17 @@
+@import '~/assets/scss/_layout.scss';
+@import '~/assets/scss/_typography.scss';
+@import '~/assets/scss/_animation.scss';
+@import '~/assets/scss/_buttons.scss';
+@import '~/assets/scss/_inputs.scss';
+@import '~/assets/scss/_modals.scss';
+@import '~/assets/scss/_tooltips.scss';
+@import '~/assets/tailwind.css';
+
+body {
+  @apply bg-shade-30 text-white;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}

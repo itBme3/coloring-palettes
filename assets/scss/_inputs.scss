@@ -1,0 +1,57 @@
+.form-field {
+  max-width: 100%;
+}
+
+input,
+textarea {
+  @apply outline-transparent border-transparent py-1 px-2 text-base focus:ring-purple-500 rounded bg-shade-30;
+  transition: all 0.1s ease-in;
+  color: rgb(220, 220, 230);
+}
+
+input {
+  min-width: 60px;
+  &[type='search'] {
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-results-button,
+    &::-webkit-search-results-decoration {
+      display: none;
+    }
+    &::-ms-clear,
+    &::-ms-revea {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+  }
+}
+
+.color-picker {
+  &.vc-sketch {
+    padding: 0;
+    border-radius: 0.3rem;
+    overflow: hidden;
+    .vc-sketch-presets {
+      border: 0;
+    }
+    .vc-sketch-field,
+    .vc-sketch-controls {
+      padding: 0.5rem 0.5rem 0;
+    }
+    &.spectrum {
+      padding: 0;
+      background-color: transparent;
+      .vc-saturation,
+      .vc-saturation--white,
+      .vc-saturation--black {
+        border-radius: 0.4rem;
+      }
+      .vc-sketch-field,
+      .vc-sketch-controls,
+      .vc-sketch-presets {
+        display: none;
+      }
+    }
+  }
+}

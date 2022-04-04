@@ -1,0 +1,19 @@
+button {
+  border-radius: 0.3rem;
+  cursor: pointer;
+  transition: all 0.1s ease-in;
+  background: rgb(35, 35, 45);
+  color: rgb(220, 220, 230);
+  font-size: 1.1rem;
+  padding: 0.25rem 0.4rem;
+  border-color: transparent;
+  outline-color: transparent;
+  &:hover {
+    background: rgb(50, 50, 60);
+    transform: scale(1.05);
+  }
+  &.active {
+    background: rgb(220, 220, 230);
+    color: rgb(35, 35, 45);
+  }
+}

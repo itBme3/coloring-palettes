@@ -1,0 +1,26 @@
+.site-container {
+  @apply overflow-x-hidden inline w-screen;
+  main {
+    @apply w-[calc(100%-2rem)] max-w-4xl m-auto pl-8;
+  }
+}
+
+.grid-item {
+  @apply p-6 w-full border bg-transparent border-shade-50 shadow-lg hover:shadow-xl hover:border-shade-40 hover:bg-shade-40 transition-all ease-in-out transform scale-100 hover:scale-103 rounded-lg;
+  .colors {
+    @apply flex content-start items-start space-x-2;
+  }
+  &.style-compact {
+    @apply p-3;
+    .colors {
+      @apply space-x-px;
+      .color-swatch {
+        @apply h-8 m-0;
+      }
+    }
+  }
+}
+
+.page {
+  @apply m-2 p-4;
+}
