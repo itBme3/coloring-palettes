@@ -6,7 +6,6 @@
       collapsed: isSidebar && sidebarCollapsed,
     }"
   >
-    {{ newColors }}
     <button
       v-if="isSidebar"
       @click="sidebarCollapsed = !sidebarCollapsed"
@@ -103,9 +102,6 @@ export default {
     ...mapGetters({
       storedPalettes: 'storedPalettes',
     }),
-    newColors() {
-      return this.$store.state?.localStorage?.addedColors || [];
-    },
     palette() {
       return (
         this.storedPalettes?.filter((p) => p.id === this.paletteId)[0] || null

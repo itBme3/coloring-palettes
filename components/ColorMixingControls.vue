@@ -84,12 +84,15 @@ export default {
     };
   },
   mounted() {
-    this.selectedColors =
-      Array.isArray(this.colors) && !!this.colors?.length
-        ? this.colors
-        : this.palette?.colors
-        ? this.palette.colors
-        : [];
+    this.selectedColors = JSON.parse(
+      JSON.stringify(
+        Array.isArray(this.colors) && !!this.colors?.length
+          ? this.colors
+          : this.palette?.colors
+          ? this.palette.colors
+          : []
+      )
+    );
   },
   watch: {
     selectedColors(val) {
