@@ -56,6 +56,7 @@
       v-if="show"
       :class="{
         ['style-' + swatchStyle]: true,
+        'cursor-default !scale-100 !hover:scale-100': !clickable,
       }"
       :style="{
         background: hexColor,

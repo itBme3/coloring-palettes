@@ -84,7 +84,6 @@ export default {
     };
   },
   mounted() {
-
     this.selectedColors =
       Array.isArray(this.colors) && !!this.colors?.length
         ? this.colors
