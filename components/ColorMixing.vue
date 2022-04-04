@@ -24,17 +24,26 @@
     </transition>
 
     <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
-      <ColorMixingShade v-if="view === 'shade'" :palette="palette" />
+      <ColorMixingShade
+        v-if="view === 'shade'"
+        :palette="palette"
+        @selectedColor="(e) => newColor(e)"
+      />
     </transition>
 
     <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
-      <ColorMixingRandom v-if="view === 'random'" :palette="palette" />
+      <ColorMixingRandom
+        v-if="view === 'random'"
+        :palette="palette"
+        @selectedColor="(e) => newColor(e)"
+      />
     </transition>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
+import chroma from 'chroma-js';
 export default {
   props: {
     paletteId: {
@@ -60,8 +69,10 @@ export default {
   },
   methods: {
     newColor(color) {
+      const newColor = { ...color, value: chroma(color.value).hex() };
+      console.log({ newColor });
       this.$store.dispatch('localStorage/addColorToPalette', {
-        color,
+        color: newColor,
         paletteId: this.palette.id,
       });
     },

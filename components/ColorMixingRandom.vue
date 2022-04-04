@@ -62,7 +62,7 @@ export default {
     },
     colors(val) {
       if (!Array.isArray(val)) {
-        return;
+        return [];
       }
       this.selectedColors = val;
     },
@@ -71,7 +71,7 @@ export default {
   methods: {
     randomColors() {
       if (!Array.isArray(this.selectedColors)) {
-        return;
+        return [];
       }
       this.results = [];
       for (let i = 0; i < this.steps; i++) {

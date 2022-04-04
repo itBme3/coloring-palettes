@@ -17,7 +17,9 @@
               :color="{ value: shade }"
               animation-name="scale-fade"
               style="margin: 0.25rem"
-              @click="(e) => selectedColors.push(e)"
+              @click="
+                (e) => $emit('selectedColor', { value: shade, id: uuid() })
+              "
             />
           </template>
         </div>
@@ -46,6 +48,7 @@ export default {
       results: [],
       steps: 10,
       selectedColors: [],
+      uuid,
     };
   },
 

@@ -85,11 +85,13 @@ export default {
     },
   },
   methods: {
-    setSidebarWidth() {
-      setTimeout(() => {
-        this.sidebarWidth =
-          this.$refs?.paletteDetailsSidebar?.$el?.offsetWidth || 0;
-      }, 100);
+    setSidebarWidth(count = 0) {
+      for (let i = 0; i < 7; i++) {
+        setTimeout(() => {
+          this.sidebarWidth =
+            this.$refs?.paletteDetailsSidebar?.$el?.offsetWidth || 0;
+        }, i * 100);
+      }
     },
     focusInput() {
       try {
