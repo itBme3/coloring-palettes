@@ -50,6 +50,11 @@
           :key="color.value + i"
           :color="color"
           :delay-show="i * 100"
+          :class="{
+            wiggle: Array.isArray(newColors)
+              ? newColors.map((c) => c.id).includes(color.id)
+              : false,
+          }"
           :swatch-style="isSidebar && sidebarCollapsed ? 'simple' : 'list-item'"
           :clickable="!sidebarCollapsed || !isSidebar"
         />
@@ -93,6 +98,11 @@ export default {
       }
       this.$emit('sidebarToggle');
     },
+  },
+  computed: {
+    ...mapGetters({
+      newColors: 'localStorage/newColors',
+    }),
   },
   methods: {
     updatePaletteName: debounce(function (e) {
