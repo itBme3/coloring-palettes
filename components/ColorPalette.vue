@@ -3,7 +3,6 @@
     v-if="palette && palette.name"
     class="color-palette mx-auto w-full relative"
   >
-    <pre>{{ sidebarWidth }}</pre>
     <div class="toggle-buttons flex space-x-2 my-3 relative z-9">
       <button
         v-for="editView in ['palette', 'mixing']"
