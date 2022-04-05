@@ -13,7 +13,9 @@
         'w-full mb-1 py-2': sidebarCollapsed,
         'ml-auto pt-1 relative -right-2 -top-2 float-right': !sidebarCollapsed,
       }"
-      v-tooltip.left="sidebarCollapsed ? 'palette colors' : null"
+      v-tooltip.left-start="
+        sidebarCollapsed ? { content: 'palette colors', offset: '5px' } : null
+      "
     >
       <Icon :icon="sidebarCollapsed ? 'ellipsis' : 'arrow-right'" />
     </button>
