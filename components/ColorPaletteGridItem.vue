@@ -16,7 +16,18 @@
     @click="(e) => $emit('click', e)"
   >
     <input
-      class="palette-title relative z-10"
+      class="
+        palette-title
+        relative
+        z-10
+        bg-transparent
+        hover:bg-shade-20
+        bg-opacity-10
+        pl-0
+        hover:pl-2
+        focus:pl-2
+        mb-2
+      "
       ref="paletteNameInput"
       :value="palette.name"
       @input="(e) => updatePaletteName(e.target.value)"
@@ -132,15 +143,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-.color-palette-grid-item {
-  input {
-    margin-bottom: 0.5rem;
-    &:not(:focus) {
-      outline-color: transparent;
-      padding-left: 0;
-    }
-  }
-}
-</style>

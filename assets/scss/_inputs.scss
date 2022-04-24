@@ -1,11 +1,9 @@
-.form-field {
-  max-width: 100%;
-}
-
 input,
 textarea {
-  @apply outline-transparent border border-transparent py-1 px-2 text-base focus:ring-purple-500 focus:ring-2 rounded bg-shade-30 outline-hidden outline-offset-0;
-  @apply focus:outline-blue-500 focus:outline-offset-0 focus:ring-offset-1 focus:ring-offset-purple-800 focus:border-blue-500 selection:bg-purple-400 selection:text-blue-900 max-w-full;
+  /* @apply outline-transparent border border-transparent py-1 px-2 text-base focus:ring-purple-500 focus:ring-2 rounded bg-shade-30 outline-hidden outline-offset-0;
+   @apply focus:outline-blue-500 focus:outline-offset-0 focus:ring-offset-1 focus:ring-offset-purple-800 focus:border-blue-500 selection:bg-purple-400 selection:text-blue-900 */
+  @apply py-2 px-3 text-base rounded bg-shade-30;
+  @apply focus-visible:outline-offset-0 focus-visible:outline-purple-500 focus-visible:ring-cyan-500 focus-visible:ring-1 focus-visible:ring-offset-purple-400 focus-visible:ring-offset-2 focus-visible:outline-0 focus-visible:shadow-lg focus-visible:shadow-blue-500/40;
   transition: all 0.1s ease-in;
   color: rgb(220, 220, 230);
 }
@@ -61,8 +59,9 @@ input {
 }
 
 .form-field {
-  @apply hover:bg-shade-50 focus-within:bg-shade-50 flex items-center p-2 border border-shade-50 hover:border-shade-50 focus-within:border-shade-50 content-start rounded;
+  @apply max-w-full bg-shade-40 hover:shadow-lg rounded mb-2 focus-within:bg-shade-50 focus-within:ring-purple-500 focus-within:ring-2;
+  @apply focus-within:outline-purple-500 focus-within:ring-cyan-500 focus-within:ring-1 focus-within:ring-offset-purple-400 focus-within:ring-offset-2 focus-visible:outline-0 focus-within:shadow-lg focus-within:shadow-blue-500/40;
   input {
-    @apply bg-transparent;
+    @apply bg-transparent focus-visible:outline-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-0 focus-visible:shadow-none;
   }
 }
