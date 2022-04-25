@@ -41,7 +41,12 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ['nuxt-vuex-localstorage'],
+  modules: [
+    ['nuxt-vuex-localstorage',
+    {
+      localStorage: ['collections', 'palettes']
+    }]
+  ],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {

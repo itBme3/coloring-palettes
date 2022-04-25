@@ -136,7 +136,7 @@ export default {
         .forEach((c) => this.showColors.push(c));
     },
     updatePaletteName: debounce(function (name) {
-      this.$store.dispatch('localStorage/updatePalette', {
+      this.$store.dispatch('updatePalette', {
         palette: { ...this.palette, name },
       });
     }, 250),

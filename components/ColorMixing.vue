@@ -1,24 +1,26 @@
 <template>
   <div class="color-mixing">
-    <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
-      <div v-if="view" class="toggle-buttons space-x-2">
-        <button
-          v-for="editView in ['scale', 'shade', 'random']"
+      
+      <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
+        <template v-for="editView in ['scale', 'shade', 'random']">
+        <ColorMixingControls
           :key="editView"
-          class="hover:bg-white hover:text-shade-20 text-sm"
-          :class="{
-            'bg-white text-shade-20': editView === view,
-          }"
-          @click="view = editView"
-        >
-          {{ editView }}
-        </button>
-      </div>
-    </transition>
+          v-if="editView === view"
+          :mix-type="editView"
+          :palette="palette"
+          :steps="steps[editView]"
+          @colors="(e) => (selectedColors = e)"
+          @steps="(e) => (steps[editView] = e)"
+        />
+        </template>
+      </transition>
+    
     <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
       <ColorMixingScale
         v-if="view === 'scale'"
         :palette="palette"
+        :steps="steps.scale"
+        :selected-colors="selectedColors"
         @selectedColor="(e) => newColor(e)"
       />
     </transition>
@@ -27,6 +29,8 @@
       <ColorMixingShade
         v-if="view === 'shade'"
         :palette="palette"
+        :steps="steps.shade"
+        :selected-colors="selectedColors"
         @selectedColor="(e) => newColor(e)"
       />
     </transition>
@@ -35,6 +39,8 @@
       <ColorMixingRandom
         v-if="view === 'random'"
         :palette="palette"
+        :steps="steps.random"
+        :selected-colors="selectedColors"
         @selectedColor="(e) => newColor(e)"
       />
     </transition>
@@ -50,12 +56,33 @@ export default {
       type: String,
       default: null,
     },
+    view: {
+      type: String,
+      default: 'scale'
+    }
   },
   data() {
-    return { view: null };
+    return { 
+      // view: null, 
+      selectedColors: [], 
+      steps: {
+        scale: 60,
+        random: 100,
+        shade: 10
+      }
+    };
   },
   mounted() {
-    this.view = 'scale';
+    // this.view = 'scale';
+    this.selectedColors = JSON.parse(
+      JSON.stringify(
+        Array.isArray(this.colors) && !!this.colors?.length
+          ? this.colors
+          : this.palette?.colors
+          ? this.palette.colors
+          : []
+      )
+    );
   },
   computed: {
     ...mapGetters({
@@ -66,12 +93,13 @@ export default {
         this.storedPalettes.filter((p) => p.id === this.paletteId)[0] || null
       );
     },
+    
   },
   methods: {
     newColor(color) {
       const newColor = { ...color, value: chroma(color.value).hex() };
       console.log({ newColor });
-      this.$store.dispatch('localStorage/addColorToPalette', {
+      this.$store.dispatch('addColorToPalette', {
         color: newColor,
         paletteId: this.palette.id,
       });

@@ -183,7 +183,7 @@ export default {
         return;
       }
 
-      this.$store.dispatch('localStorage/deletePalette', paletteId);
+      this.$store.dispatch('deletePalette', paletteId);
       setTimeout(() => {
         this.$router.push(
           this.$route.params.collectionId

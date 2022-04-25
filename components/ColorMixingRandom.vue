@@ -1,23 +1,19 @@
 <template>
   <div class="color-mixing-random">
-    <ColorMixingControls
-      mix-type="random"
-      :palette="palette"
-      @colors="(e) => (selectedColors = e)"
-      @steps="(e) => (steps = e)"
-    />
-    <div class="color-results flex flex-wrap w-full">
-      <template v-for="(color, i) in results">
-        <ColorSwatch
-          :key="color.id + '-' + i"
-          :delay-show="i * 3"
-          :color="color"
-          animation-name="scale-fade"
-          class="mb-2 mr-2"
-          @click="(e) => $emit('selectedColor', color)"
-        />
-      </template>
-    </div>
+    <ColorMixingResultsWrap>
+      <div class="color-results flex flex-wrap w-full">
+        <template v-for="(color, i) in results">
+          <ColorSwatch
+            :key="color.id + '-' + i"
+            :delay-show="i * 3"
+            :color="color"
+            animation-name="scale-fade"
+            class="mb-2 mr-2"
+            @click="(e) => $emit('selectedColor', color)"
+          />
+        </template>
+      </div>
+    </ColorMixingResultsWrap>
   </div>
 </template>
 
@@ -35,22 +31,23 @@ export default {
       type: Object,
       default: null,
     },
+    selectedColors: {
+      type: Array,
+      default: () => []
+    },
+    steps: {
+      type: [Number, String],
+      default: 100
+    }
   },
   data() {
     return {
       results: [],
-      steps: 100,
-      selectedColors: [],
     };
   },
 
   mounted() {
-    this.selectedColors =
-      Array.isArray(this.colors) && !!this.colors?.length
-        ? this.colors
-        : this.palette?.colors?.length
-        ? this.palette.colors
-        : [];
+    this.randomColors();
   },
 
   watch: {
@@ -59,12 +56,6 @@ export default {
     },
     steps() {
       this.randomColors();
-    },
-    colors(val) {
-      if (!Array.isArray(val)) {
-        return [];
-      }
-      this.selectedColors = val;
     },
   },
 

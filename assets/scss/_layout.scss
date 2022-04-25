@@ -1,7 +1,7 @@
 .site-container {
   @apply overflow-x-hidden inline w-screen;
   main {
-    @apply w-[calc(100%-2rem)] max-w-4xl m-auto pl-8;
+    @apply w-[calc(100%-2rem)] max-w-4xl my-auto mx-0 pl-8;
   }
 }
 

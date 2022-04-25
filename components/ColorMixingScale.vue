@@ -1,22 +1,19 @@
 <template>
   <div class="color-mixing-scale">
-    <ColorMixingControls
-      mix-type="scale"
-      :palette="palette"
-      @colors="(e) => (selectedColors = e)"
-      @steps="(e) => (steps = e)"
-    />
-    <div class="color-results flex flex-wrap w-full">
-      <template v-for="(color, i) in results">
-        <ColorSwatch
-          :key="color.id + '-' + i"
-          :delay-show="i * 3"
-          :color="color"
-          animation-name="scale-fade"
-          class="mb-2 mr-2"
-          @click="(e) => $emit('selectedColor', color)"
-        />
-      </template>
+      <ColorMixingResultsWrap>
+        <div class="color-results flex flex-wrap justify-center w-full">
+          <template v-for="(color, i) in results">
+            <ColorSwatch
+              :key="color.id + '-' + i"
+              :delay-show="i * 3"
+              :color="color"
+              animation-name="scale-fade"
+              class="mb-2 mr-2"
+              @click="(e) => $emit('selectedColor', color)"
+            />
+          </template>
+        </div>
+      </ColorMixingResultsWrap>
     </div>
   </div>
 </template>
@@ -35,11 +32,14 @@ export default {
       type: Object,
       default: null,
     },
+    steps: {
+      type: [Number, String],
+      default: 60
+    }
   },
   data() {
     return {
       results: [],
-      steps: 60,
       selectedColors: [],
     };
   },

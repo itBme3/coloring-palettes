@@ -1,10 +1,10 @@
 <template>
   <div class="color-mixing-controls">
     <div
-      class="max-w-full my-2 px-3 pt-1 pb-3 rounded-md bg-shade-40 shadow-lg"
+      class="max-w-full my-2 pt-1 pb-3 rounded-md"
     >
       <div
-        class="form-field w-32 mt-2 pl-3 py-1"
+        class="form-field w-32 mt-2 pl-3 py-1 flex items-center"
         @click="$refs.stepInput.focus()"
       >
         <label for="steps" class="text-xs text-shade-90">steps: </label>
@@ -55,7 +55,6 @@
         </ColorSwatch>
       </draggable>
     </div>
-    <h4 class="text-md text-shade-110 mb-2">Results:</h4>
   </div>
 </template>
 <script>

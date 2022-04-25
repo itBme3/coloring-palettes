@@ -1,7 +1,7 @@
 <template>
   <div class="color-collections">
     <button
-      @click="$store.commit('localStorage/newCollection')"
+      @click="$store.commit('newCollection')"
       class="
         py-6
         px-12

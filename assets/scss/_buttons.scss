@@ -1,19 +1,15 @@
 button {
-  border-radius: 0.3rem;
-  cursor: pointer;
-  transition: all 0.1s ease-in;
-  background: rgb(35, 35, 45);
-  color: rgb(220, 220, 230);
-  font-size: 1.1rem;
-  padding: 0.25rem 0.4rem;
-  border-color: transparent;
-  outline-color: transparent;
-  &:hover {
-    background: rgb(50, 50, 60);
-    transform: scale(1.05);
-  }
+  @apply rounded transition-all ease-in duration-100 bg-shade-35 scale-100 transform text-shade-220 text-base uppercase font-black tracking-widest outline-none p-3;
+   &:not([disabled]) {
+     @apply cursor-pointer hover:scale-105 hover:bg-shade-50 ;
+   }
   &.active {
-    background: rgb(220, 220, 230);
-    color: rgb(35, 35, 45);
+    @apply bg-shade-230 text-shade-35;
+  }
+  &.outline {
+    @apply border-2 bg-transparent border-shade-40 hover:bg-shade-40 hover:text-shade-230;
+    &.active {
+      @apply bg-shade-230 border-shade-230 text-shade-30;
+    }
   }
 }

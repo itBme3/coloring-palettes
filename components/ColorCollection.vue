@@ -70,7 +70,7 @@ export default {
         .forEach((c) => this.showPalettes.push(c));
     }, 100),
     updateCollectionName(e) {
-      this.$store.dispatch('localStorage/updateCollection', {
+      this.$store.dispatch('updateCollection', {
         collection: {
           ...this.collection,
           name: e.target.value,

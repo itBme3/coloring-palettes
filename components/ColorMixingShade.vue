@@ -1,11 +1,6 @@
 <template>
-  <div class="color-mixing-scale">
-    <ColorMixingControls
-      mix-type="shade"
-      :palette="palette"
-      @colors="(e) => (selectedColors = e)"
-      @steps="(e) => (steps = e)"
-    />
+  <div class="color-mixing-shade">
+   <ColorMixingResultsWrap>
     <div class="color-results flex flex-col w-full space-y-2">
       <template v-for="(color, i) in results">
         <div class="shade-group flex flex-wrap">
@@ -25,6 +20,7 @@
         </div>
       </template>
     </div>
+   </ColorMixingResultsWrap>
   </div>
 </template>
 
@@ -42,12 +38,18 @@ export default {
       type: Object,
       default: null,
     },
+    selectedColors: {
+      type: Array,
+      default: () => []
+    },
+    steps: {
+      type: [Number, String],
+      default: 10
+    }
   },
   data() {
     return {
       results: [],
-      steps: 10,
-      selectedColors: [],
       uuid,
     };
   },

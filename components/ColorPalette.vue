@@ -1,48 +1,74 @@
 <template>
   <div
     v-if="palette && palette.name"
-    class="color-palette mx-auto w-full relative"
+    class="color-palette ml-2 mr-auto w-full relative inline-block"
   >
-    <div class="toggle-buttons flex space-x-2 my-3 relative z-9">
-      <button
-        v-for="editView in ['palette', 'mixing']"
-        :key="editView"
-        @click="view = editView"
-        class="hover:bg-white hover:text-shade-20"
-        :class="{
-          'bg-white text-shade-20': editView === view,
-        }"
-      >
-        {{ editView }}
-      </button>
-    </div>
-    <ColorPaletteDetails
-      v-if="view === 'palette'"
-      ref="paletteDetails"
-      :palette-id="palette.id"
-    />
-    <ColorMixing
-      v-if="view === 'mixing'"
-      :palette-id="palette.id"
-      :style="{
-        width: 'calc(100% - ' + sidebarWidth + 'px)',
-      }"
-    />
-    <ColorPaletteActions
-      v-if="view === 'palette'"
-      :palette="palette"
-      @rename="focusInput"
-    />
-    <transition name="left-fade">
+    <aside ref="paletteNav" class="sticky float-left top-2 w-[160px] rounded-md border border-shade-30 p-4">
+      <div class="toggle-buttons flex flex-col space-y-2 mb-6 relative z-9">
+        <button
+          v-for="editView in ['palette', 'mixing']"
+          :key="editView"
+          @click="view = editView"
+          class="hover:text-white tracking-widest uppercase font-black border-2 border-t-0 border-x-0 border-transparent text-lg text-shade-180 bg-shade-20 bg-opacity-40"
+          :class="{
+            'border-white text-white rounded-b-none text-2xl bg-transparent cursor-default hover:bg-transparent hover:scale-100': view === editView,
+          }"
+        >
+          {{ editView }}
+        </button>
+      </div>
+      <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
+        <div v-if="view === 'mixing'" class="flex flex-col space-y-2" >
+          <template
+              v-for="mixView in ['scale', 'shade', 'random']">
+            <button
+              :key="mixView"
+              class="hover:bg-white hover:text-shade-20 text-sm outline w-full"
+              :disabled="mixView === mixingView"
+              :class="{
+                'active': mixView === mixingView,
+              }"
+              @click="mixingView = mixView"
+            >
+              {{ mixView }}
+            </button>
+          </template>
+        </div>
+      </transition>
+    </aside>
+
+    <div class="ml-auto" :style="{
+          width: $refs.paletteNav && $refs.paletteNav.offsetWidth
+            ? 'calc(100% - ' + ($refs.paletteNav.offsetWidth) + 'px - 2rem)'
+            : 'calc(100% - 2rem)',
+        }">
       <ColorPaletteDetails
-        v-if="view === 'mixing'"
-        ref="paletteDetailsSidebar"
-        class="is-sidebar"
+        v-if="view === 'palette'"
+        ref="paletteDetails"
         :palette-id="palette.id"
-        :is-sidebar="true"
-        @sidebarToggle="setSidebarWidth()"
       />
-    </transition>
+      <ColorMixing
+        v-if="view === 'mixing'"
+        :palette-id="palette.id"
+        :view="mixingView"
+        style="width: calc(100% - 2rem)"
+      />
+      <ColorPaletteActions
+        v-if="view === 'palette'"
+        :palette="palette"
+        @rename="focusInput"
+      />
+      <transition name="left-fade">
+        <ColorPaletteDetails
+          v-if="view === 'mixing'"
+          ref="paletteDetailsSidebar"
+          class="is-sidebar"
+          :palette-id="palette.id"
+          :is-sidebar="true"
+          @sidebarToggle="setSidebarDetailsWidth()"
+        />
+      </transition>
+    </div>
   </div>
 </template>
 <script>
@@ -58,11 +84,13 @@ export default {
   data() {
     return {
       view: null,
-      sidebarWidth: this.$refs?.paletteDetailsSidebar?.$el?.offsetWidth || 0,
+      mixingView: null,
+      sidebarDetailsWidth: this.$refs?.paletteDetailsSidebar?.$el?.offsetWidth || 0,
     };
   },
   mounted() {
     this.view = 'mixing';
+    this.mixingView = 'scale'
   },
   computed: {
     ...mapGetters({
@@ -80,14 +108,14 @@ export default {
         this.storedPalettes?.filter((p) => p.id === val)[0] || null;
     },
     view() {
-      this.setSidebarWidth();
+      this.setSidebarDetailsWidth();
     },
   },
   methods: {
-    setSidebarWidth(count = 0) {
+    setSidebarDetailsWidth(count = 0) {
       for (let i = 0; i < 7; i++) {
         setTimeout(() => {
-          this.sidebarWidth =
+          this.sidebarDetailsWidth =
             this.$refs?.paletteDetailsSidebar?.$el?.offsetWidth || 0;
         }, i * 100);
       }
@@ -98,7 +126,7 @@ export default {
       } catch {}
     },
     updatePaletteName: debounce(function (e) {
-      this.$store.dispatch('localStorage/updatePalette', {
+      this.$store.dispatch('updatePalette', {
         palette: { ...this.palette, name: e.target.value },
       });
     }, 250),

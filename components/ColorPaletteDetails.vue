@@ -112,7 +112,7 @@ export default {
   },
   methods: {
     updatePaletteName: debounce(function (e) {
-      this.$store.dispatch('localStorage/updatePalette', {
+      this.$store.dispatch('updatePalette', {
         palette: { ...this.palette, name: e.target.value },
       });
     }, 100),
