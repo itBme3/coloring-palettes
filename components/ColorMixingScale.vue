@@ -25,8 +25,8 @@ import { v4 as uuid } from 'uuid';
 export default {
   props: {
     colors: {
-      type: Object,
-      default: null,
+      type: Array,
+      default: [],
     },
     palette: {
       type: Object,
@@ -45,16 +45,13 @@ export default {
   },
 
   mounted() {
-    this.selectedColors =
-      Array.isArray(this.colors) && !!this.colors?.length
-        ? this.colors
-        : this.palette?.colors?.length
-        ? this.palette.colors
-        : [];
+    this.selectedColors = this.colors || [];
   },
 
   watch: {
     selectedColors() {
+      // console.log(this.selectedColors)
+      if(!this.selectedColors?.length) { return }
       this.scaleColors();
     },
     steps() {

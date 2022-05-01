@@ -1,4 +1,4 @@
-button {
+button, .button {
   @apply rounded transition-all ease-in duration-100 bg-shade-35 scale-100 transform text-shade-220 text-base uppercase font-black tracking-widest outline-none p-3;
    &:not([disabled]) {
      @apply cursor-pointer hover:scale-105 hover:bg-shade-50 ;

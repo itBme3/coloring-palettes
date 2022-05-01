@@ -1,5 +1,5 @@
 <template>
-  <fa :icon="iconName"></fa>
+  <fa :icon="iconName" @click="e => $emit('click', e)"></fa>
 </template>
 <script>
 export default {
@@ -31,8 +31,11 @@ export default {
         rename: 'i-cursor',
         palettes: 'swatchbook',
         collection: 'obect-group',
-        collections: 'obect-group',
+        collections: 'layer-group',
         search: 'magnifying-glass',
+        home: 'house',
+        custom: 'droplet',
+        color: 'droplet',
       };
       return Object.keys(conversion).includes(this.icon)
         ? conversion[this.icon]

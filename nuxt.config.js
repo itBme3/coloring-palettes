@@ -44,7 +44,7 @@ export default {
   modules: [
     ['nuxt-vuex-localstorage',
     {
-      localStorage: ['collections', 'palettes']
+      localStorage: ['stored']
     }]
   ],
 
@@ -76,6 +76,7 @@ export default {
             ),
           ];
         }, []),
+        'faHouse',
         'faTrash',
         'faGripLines',
         'faBars',
@@ -89,6 +90,7 @@ export default {
         'faCopy',
         'faPlus',
         'faXmark',
+        'faDroplet',
         'faList',
         'faGear',
         'faSliders',

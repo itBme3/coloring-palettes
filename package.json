@@ -13,6 +13,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@nuxt/postcss8": "^1.1.3",
     "@nuxtjs/fontawesome": "^1.1.2",
+    "@vue/runtime-dom": "^3.2.33",
     "core-js": "^3.9.1",
     "nuxt": "^2.15.3",
     "sass": "^1.49.9",

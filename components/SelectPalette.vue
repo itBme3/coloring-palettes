@@ -1,6 +1,8 @@
 <template>
-  <div class="select-palette p-4 rounded">
-    <InputSearch v-if="!hideSearch" v-model="q" class="mb-0" />
+  <div class="select-palette rounded">
+    <InputSearch 
+      ref="searchInput"
+      v-if="!hideSearch" v-model="q" />
     <div class="palettes space-y-2 relative z-1">
       <ColorPaletteGridItem
         v-for="palette in palettes"
@@ -8,9 +10,11 @@
         :palette-id="palette.id"
         :link="false"
         :actions="false"
-        item-style="compact"
-        swatch-style="simple"
+        :item-style="itemStyle"
+        :swatch-style="swatchStyle"
+        :swatch-clickable="swatchClickable"
         @click="$emit('select', palette)"
+        @color="e => $emit('color', e)"
         class="!hover:scale-103"
       />
     </div>
@@ -28,6 +32,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    swatchClickable: {
+      type: Boolean,
+      default: false,
+    },
+    itemStyle: {
+      type: String,
+      default: 'compact',
+    },
+    swatchStyle: {
+      type: String,
+      default: 'simple',
+    },
   },
   data() {
     return {
@@ -35,7 +51,7 @@ export default {
     };
   },
   mounted() {
-    this.$refs?.searchInput?.select();
+    this.$refs?.searchInput?._vnode?.children.forEach(child => child.tag === 'input' ? child.elm.focus() : '')
   },
   computed: {
     ...mapGetters({
@@ -68,3 +84,8 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+.input-search {
+  @apply mb-3
+}
+</style>

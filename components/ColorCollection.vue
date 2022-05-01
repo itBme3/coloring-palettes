@@ -1,7 +1,7 @@
 <template>
   <div v-if="collection" class="color-collection mx-auto w-full relative">
     <input
-      class="title relative z-10 text-4xl"
+      class="title relative z-10 text-4xl bg-transparent"
       type="text"
       :value="collection.name"
       @input="updateCollectionName"

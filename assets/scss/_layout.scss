@@ -1,21 +1,26 @@
 .site-container {
   @apply overflow-x-hidden inline w-screen;
   main {
-    @apply w-[calc(100%-2rem)] max-w-4xl my-auto mx-0 pl-8;
+    @apply inline;
+    .page {
+      @apply p-12
+    }
   }
 }
 
 .grid-item {
   @apply p-6 w-full border bg-transparent border-shade-50 shadow-lg hover:shadow-xl hover:border-shade-40 hover:bg-shade-40 transition-all ease-in-out transform scale-100 hover:scale-103 rounded-lg;
   .colors {
-    @apply flex content-start items-start space-x-2;
+    @apply flex content-start items-start flex-wrap;
+    .color-swatch {
+      @apply mr-2 mb-2 flex-shrink max-w-[50px];
+    }
   }
   &.style-compact {
     @apply p-3;
     .colors {
-      @apply space-x-px;
       .color-swatch {
-        @apply h-8 m-0;
+        @apply h-8 mr-px mb-px;
       }
     }
   }

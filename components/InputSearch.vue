@@ -1,7 +1,7 @@
 <template>
   <div
     class="
-      flex
+      input-search flex
       items-center
       content-between
       form-field

@@ -1,9 +1,15 @@
 <template>
   <nav class="header-navigation flex flex-col items-start content-center">
+    
+    <nuxt-link
+      v-if="$route.path !== '/'"
+      to="/"
+      ><Icon icon="home"
+    /></nuxt-link>
     <nuxt-link
       to="/collections"
       v-tooltip.right="{ content: 'collections', offset: '5px' }"
-      ><Icon icon="layer-group"
+      ><Icon icon="collections"
     /></nuxt-link>
     <nuxt-link
       to="/palettes"

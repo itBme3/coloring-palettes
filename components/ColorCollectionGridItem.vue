@@ -9,7 +9,7 @@
     @click="(e) => $emit('click', e)"
   >
     <h4
-      class="collection-title"
+      class="collection-title grid-item-title"
       :class="{
         'mb-4': itemStyle !== 'compact',
         'mb-2': itemStyle === 'compact',
@@ -19,7 +19,7 @@
     </h4>
     <div class="color-collection-palettes">
       <div
-        v-for="(palette, i) in palettes.slice(0, showPalettesCount)"
+        v-for="(palette, i) in (showPalettesCount > 0  ? palettes.slice(0, showPalettesCount) : palettes)"
         :key="palette"
         v-if="palettesMap[palette].name"
         class="color-collection-palette"
@@ -47,7 +47,7 @@
           />
         </div>
       </div>
-      <small v-if="palettes.length > showPalettesCount" class="mt-2 block"
+      <small v-if="showPalettesCount > 0 && palettes.length > showPalettesCount" class="mt-2 block"
         >+ {{ palettes.length - showPalettesCount }} more palettes</small
       >
     </div>
@@ -75,11 +75,10 @@ export default {
       type: String,
       default: 'standard',
     },
-  },
-  data() {
-    return {
-      showPalettesCount: 3,
-    };
+    showPalettesCount: {
+      type: Number,
+      default: 0,
+    },
   },
   computed: {
     ...mapGetters({

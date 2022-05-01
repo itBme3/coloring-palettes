@@ -4,7 +4,7 @@
     class="palette-actions flex"
     :class="{
       'items-center justify-end space-x-1': !isPalettePage,
-      'flex-col items-start justify-center space-y-1 fixed z-999 right-0 top-0 p-4':
+      'flex-col items-between justify-start space-y-1 pt-2 pb-4':
         isPalettePage,
       '!flex-row': view === 'deleting',
     }"
@@ -103,14 +103,20 @@
           v-else-if="show"
           :key="action + '-' + isPalettePage"
           v-tooltip.left="{
-            content: action,
+            content: isPalettePage ? undefined : action,
             classes: ['rounded', 'bg-shade-30', 'z-90'],
             offset: '5px',
           }"
           class="action-button"
+          :class="{
+            'text-left': isPalettePage
+          }"
           @click="handleAction(action)"
         >
-          <Icon :icon="action" class="m-auto" />
+          <Icon :icon="action" :class="{
+            'm-auto': !isPalettePage,
+            'my-auto ml-2 mr-1': isPalettePage
+          }" /> <small class="text-shade-100 ml-0 mr-auto text-xs" v-if="isPalettePage">{{ action }}</small>
         </button>
       </TransitionGroup>
     </template>
@@ -133,6 +139,7 @@ export default {
       type: Boolean,
       default: true,
     },
+
   },
   data() {
     return {
@@ -250,6 +257,6 @@ export default {
 
 <style lang="scss" scoped>
 .action-button {
-  @apply flex items-center content-center w-10 h-10 mr-0 transform scale-90 rounded-full;
+  @apply block whitespace-nowrap w-full mr-0 transform scale-97 hover:scale-100 rounded-md truncate pl-2 text-ellipsis text-shade-100;
 }
 </style>

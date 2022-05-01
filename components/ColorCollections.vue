@@ -15,11 +15,11 @@
         hover:scale-105
         mb-4
       "
-      v-tooltip.right="{ content: 'New Collection', offset: '10' }"
+      v-tooltip.right="{ content: 'Crate Collection', offset: '10' }"
     >
-      <Icon icon="add" />
+      <Icon icon="add" /> Collection
     </button>
-    <div class="collections-grid grid sm:grid-cols-2 gap-4">
+    <div class="collections-grid grid gap-4">
       <ColorCollectionGridItem
         v-for="collection in collections"
         :key="collection.id"

@@ -1,15 +1,17 @@
 <template>
   <div class="select-collection">
-    <InputSearch v-if="!hideSearch" v-model="q" />
-    <div class="collections">
+    <InputSearch 
+       ref="searchInput"
+      v-if="!hideSearch" v-model="q" />
+    <div class="collections space-y-1">
       <ColorCollectionGridItem
         v-for="collection in collections"
         :key="collection.id"
         :collection="collection"
         :link="false"
-        item-style="compact"
+        :item-style="itemStyle"
         @click="$emit('select', collection)"
-        class="transform !scale-95 !hover:scale-100"
+        class="transform"
       />
     </div>
   </div>
@@ -26,11 +28,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    itemStyle: {
+      type: String,
+      default: 'compact',
+    },
   },
   data() {
     return {
       searchValue: this.search,
     };
+  },
+  mounted() {
+    this.$refs?.searchInput?._vnode?.children.forEach(child => child.tag === 'input' ? child.elm.focus() : '')
   },
   computed: {
     ...mapGetters({

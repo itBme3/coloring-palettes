@@ -9,24 +9,25 @@
     <button
       v-if="isSidebar"
       @click="sidebarCollapsed = !sidebarCollapsed"
+      class="z-10 relative flex items-center content-center py-2"
       :class="{
-        'w-full mb-1 py-2': sidebarCollapsed,
-        'ml-auto pt-1 relative -right-2 -top-2 float-right': !sidebarCollapsed,
+        'w-full mb-1 px-0': sidebarCollapsed,
+        'ml-auto -right-2 -top-2 float-right': !sidebarCollapsed,
       }"
       v-tooltip.left-start="
         sidebarCollapsed ? { content: 'palette colors', offset: '5px' } : null
       "
     >
-      <Icon :icon="sidebarCollapsed ? 'ellipsis' : 'arrow-right'" />
+      <Icon class="m-auto" :icon="sidebarCollapsed ? 'ellipsis' : 'arrow-right'" />
     </button>
     <transition
       :name="isSidebar ? 'left-fade' : 'down-fade'"
       :duration="{ enter: 500, leave: 100 }"
     >
       <input
-        v-if="view.includes('input')"
+        v-if="view.includes('input') && (!sidebarCollapsed || !isSidebar)"
         ref="nameInput"
-        class="title relative z-10 mb-3 border-transparent outline-transparent"
+        class="title relative z-10 mb-3 border-transparent bg-transparent outline-transparent"
         :class="{
           'text-4xl': !isSidebar,
           'text-sm rounded-none border-l-0 border-r-0 border-t-0 !border-shade-20 border-1 bg-transparent hover:border-20 !focus:border-20 !hover:bg-shade-20 !focus:bg-shade-20 hover:rounded focus:rounded pl-0 focus:pl-2 hover:pl-2':
@@ -49,15 +50,20 @@
       >
         <ColorSwatch
           v-for="(color, i) in palette.colors"
-          :key="color.value + i"
+          :key="color.id"
           :color="color"
           :delay-show="i * 100"
           :class="{
             'just-added delay-500': Date.now() - color.createdAt < 3000,
           }"
           :swatch-style="isSidebar && sidebarCollapsed ? 'simple' : 'list-item'"
-          :clickable="!sidebarCollapsed || !isSidebar"
+          :clickable="!sidebarCollapsed && isSidebar"
+          :actions="true"
+          @updateColor="e => $store.dispatch('updateColor', e)"
         />
+        <div v-if="sidebarCollapsed"
+           class="absolute inset-0 z-9 cursor-pointer"
+           @click="sidebarCollapsed = false" />
       </div>
     </transition>
   </div>
@@ -80,7 +86,7 @@ export default {
   data() {
     return {
       view: [],
-      sidebarCollapsed: false,
+      sidebarCollapsed: true,
     };
   },
   mounted() {
@@ -116,6 +122,10 @@ export default {
         palette: { ...this.palette, name: e.target.value },
       });
     }, 100),
+    updateColor(color, value) {
+      console.log({color, value})
+      this.$store.commit('updateColor', { ...color, value })
+    }
   },
 };
 </script>

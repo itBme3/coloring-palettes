@@ -20,7 +20,7 @@
         v-if="view === 'scale'"
         :palette="palette"
         :steps="steps.scale"
-        :selected-colors="selectedColors"
+        :colors="selectedColors"
         @selectedColor="(e) => newColor(e)"
       />
     </transition>

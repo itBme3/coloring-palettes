@@ -16,8 +16,10 @@
     @click="(e) => $emit('click', e)"
   >
     <input
+      v-if="actions"
       class="
         palette-title
+        grid-item-title
         relative
         z-10
         bg-transparent
@@ -32,15 +34,20 @@
       :value="palette.name"
       @input="(e) => updatePaletteName(e.target.value)"
     />
-    <div v-if="palette.colors" class="colors">
+
+    <h4 v-else class="grid-item-title">{{ palette.name }}</h4>
+
+    <div v-if="palette.colors" class="colors"
+      :class="{'relative z-10': swatchClickable}">
       <ColorSwatch
         v-for="(color, i) in showColors"
         :key="color + '-' + i"
         :color="color"
-        :clickable="false"
+        :clickable="swatchClickable"
         :actions="false"
         :delay-show="i * 50"
         :swatch-style="swatchStyle"
+        @click="e => swatchClickable ? $emit('color', e) : ''"
       />
     </div>
 
@@ -96,6 +103,10 @@ export default {
       type: String,
       default: 'tile',
     },
+    swatchClickable: {
+      type: Boolean,
+      default: false,
+    },
     link: {
       type: Boolean,
       default: true,
@@ -112,7 +123,7 @@ export default {
     };
   },
   mounted() {
-    this.showColors = this.palette?.colors?.slice(0, 10) || [];
+    this.showColors = this.palette?.colors || [];
   },
   computed: {
     ...mapGetters({

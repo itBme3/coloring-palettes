@@ -8,20 +8,14 @@
   >
     <slot />
     <div
-      v-if="
-        activeActions &&
-        (hovered || actionsHovered || (actionsHovered && activeAction))
-      "
+      v-if="activeActions"
       key="actions"
       class="color-swatch-actions"
       @mouseenter="actionsHovered = true"
-      @mouseleave="
-        actionsHovered = false;
-        activeAction = false;
-      "
+      
     >
-      <transition name="scale-fade-pop">
-        <div class="toggle-actions">
+      <Transition name="scale-fade-pop">
+        <div v-if="hovered" class="toggle-actions">
           <button
             v-for="anAction in activeActions"
             class="icon-button toggle-action-button"
@@ -30,12 +24,12 @@
             <Icon :icon="Array.isArray(anAction) ? anAction[1] : anAction" />
           </button>
         </div>
-      </transition>
+      </Transition>
       <ColorPicker
         v-if="activeAction === 'edit'"
         picker-type="spectrum"
         :value="color.value"
-        @update="(e) => $emit('color', { ...color, value: e })"
+        @update="(e) => $emit('updateColor', { ...color, value: e })"
       />
       <button
         v-if="activeAction"
@@ -74,8 +68,9 @@
 
 <script>
 import chroma from 'chroma-js';
+import { defineComponent } from '@vue/runtime-core';
 
-export default {
+export default defineComponent({
   name: 'color-swatch',
   props: {
     color: {
@@ -114,12 +109,13 @@ export default {
     },
   },
   data() {
+    const possibleActions = ['edit', 'copy', 'delete', 'duplicate', 'save'];
     return {
       show: false,
       editingColor: false,
       hovered: false,
       actionsHovered: false,
-      possibleActions: ['edit', 'copy', 'delete', 'duplicate', 'save'],
+      possibleActions,
       activeAction: false,
       hexColor: chroma(this.color.value).hex(),
       textColor: this.getTextColor(),
@@ -127,7 +123,7 @@ export default {
         Array.isArray(this.actions) && this.actions?.length
           ? this.actions
           : this.actions === true
-          ? this.possibleActions
+          ? possibleActions
           : false,
     };
   },
@@ -142,7 +138,11 @@ export default {
       this.textColor = this.getTextColor();
     },
   },
-  computed: {},
+  // computed: {
+  //   activeActions() {
+  //     return this.actions === true ? this.possibleActions : Array.isArray(this.actions) ? this.actions : false
+  //   }
+  // },
   methods: {
     getTextColor() {
       const lightText = chroma
@@ -171,7 +171,7 @@ export default {
       this.$emit(action, this.color);
     },
   },
-};
+});
 </script>
 
 <style lang="scss">

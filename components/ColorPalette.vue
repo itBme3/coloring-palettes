@@ -5,23 +5,30 @@
   >
     <aside ref="paletteNav" class="sticky float-left top-2 w-[160px] rounded-md border border-shade-30 p-4">
       <div class="toggle-buttons flex flex-col space-y-2 mb-6 relative z-9">
-        <button
-          v-for="editView in ['palette', 'mixing']"
-          :key="editView"
-          @click="view = editView"
-          class="hover:text-white tracking-widest uppercase font-black border-2 border-t-0 border-x-0 border-transparent text-lg text-shade-180 bg-shade-20 bg-opacity-40"
-          :class="{
-            'border-white text-white rounded-b-none text-2xl bg-transparent cursor-default hover:bg-transparent hover:scale-100': view === editView,
-          }"
-        >
-          {{ editView }}
-        </button>
+        <template v-for="editView in ['palette', 'mixing']">
+          <button
+            :key="editView"
+            @click="view = editView"
+            class="hover:text-white tracking-widest uppercase font-black border-2 border-t-0 border-x-0 border-transparent text-lg text-shade-180 bg-shade-20 bg-opacity-40"
+            :class="{
+              'order-first': editView === 'palette',
+              'border-white text-white rounded-b-none text-2xl bg-transparent cursor-default hover:bg-transparent hover:scale-100': view === editView,
+            }"
+          >
+            {{ editView }}
+          </button>
+        </template>
+          <ColorPaletteActions
+            v-if="view === 'palette'"
+            class="order-first"
+            :palette="palette"
+            @rename="focusInput"
+          />
       </div>
       <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
         <div v-if="view === 'mixing'" class="flex flex-col space-y-2" >
-          <template
-              v-for="mixView in ['scale', 'shade', 'random']">
             <button
+            v-for="mixView in ['scale', 'shade', 'random']"
               :key="mixView"
               class="hover:bg-white hover:text-shade-20 text-sm outline w-full"
               :disabled="mixView === mixingView"
@@ -32,7 +39,6 @@
             >
               {{ mixView }}
             </button>
-          </template>
         </div>
       </transition>
     </aside>
@@ -53,11 +59,7 @@
         :view="mixingView"
         style="width: calc(100% - 2rem)"
       />
-      <ColorPaletteActions
-        v-if="view === 'palette'"
-        :palette="palette"
-        @rename="focusInput"
-      />
+      
       <transition name="left-fade">
         <ColorPaletteDetails
           v-if="view === 'mixing'"
