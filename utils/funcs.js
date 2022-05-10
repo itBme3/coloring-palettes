@@ -13,11 +13,12 @@ export const handleize = (strng, reaplceSpacesWith = '-') => {
 };
 
 export const capitalize = (strng, altSpaces = []) => {
+  if(typeof strng !== 'string') { return '' }
   const spaces = [' ', ...(altSpaces || [])];
   const words = spaces.reduce((acc, space) => {
     return acc.split(space).join(' ');
   }, strng);
-  return words
+  return words.split(' ')
     .map((word) => word[0].toUpperCase() + word.substring(1))
     .join(' ');
 };

@@ -44,7 +44,7 @@
         <input
           class="hidden"
           type="checkbox"
-          name="copy-colors-names"
+          name="copyColors-names"
           v-model="copyColorsIncludeNames"
         />
         <small class="inline-block text-xs mx-2">include names</small>
@@ -160,7 +160,7 @@ export default {
       return this.isPalettePage ? 'v-tooltip.left' : 'v-tooltip.auto.state';
     },
     activeActions() {
-      const actions = ['rename', 'copy-colors', 'duplicate', 'move', 'delete'];
+      const actions = ['rename', 'copyColors', 'duplicate', 'move', 'delete'];
       if (!this.isPalettePage) {
         actions.unshift('edit');
       }
@@ -180,7 +180,6 @@ export default {
   methods: {
     deletePalette() {
       const paletteId = `${this.palette.id}`;
-      console.log({ paletteId });
       const isPalettePage =
         (this.$route.path.split('/')[1] === 'palettes' &&
           this.$route.params.id) ||
@@ -201,7 +200,7 @@ export default {
     },
     handleAction(action) {
       switch (action) {
-        case 'copy-colors':
+        case 'copyColors':
           this.view = 'copying-colors';
           break;
         case 'edit':

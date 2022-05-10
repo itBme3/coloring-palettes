@@ -13,7 +13,7 @@
       <ColorPicker
         picker-type="spectrum"
         :value="item.value"
-        @update="(e) => $store.dispatch('updateColor', { ...item, value: e })"
+        @update="(e) => handleAction({ ...item, value: e })"
       />
     </template>
 
@@ -51,7 +51,7 @@
         <input
           class="hidden"
           type="checkbox"
-          name="copy-colors-names"
+          name="copyColors-names"
           v-model="copyColorsIncludeNames"
         />
         <small class="inline-block text-xs mx-2">include names</small>
@@ -73,13 +73,20 @@
       copied 👍
     </small>
     </template>
+    
+    <template v-else-if="action === 'move'">
+      <component 
+        :is="itemType === 'palette' ? 'SelectCollection' : 'SelectPalette'"
+        @select="e => handleAction(!!e && !!e.id ? e.id : null)"
+      />
+    </template>
 
   </Popover>
 </template>
 
 <script>
   import Vue from 'vue'
-import {capitalize} from '~/utils/funcs'
+import {capitalize, asyncDelay} from '~/utils/funcs'
   export default Vue.extend({
     props: {
       item: {
@@ -100,6 +107,18 @@ import {capitalize} from '~/utils/funcs'
           actions: '',
         })
       },
+      inputEl: {
+        type: HTMLElement,
+        default: () => null
+      },
+      onlyEmit: {
+        type: Boolean,
+        default: false
+      },
+      closeOnClick: {
+        type: Boolean,
+        default: false
+      }
     },
     data: () => ({
       view: null
@@ -113,11 +132,12 @@ import {capitalize} from '~/utils/funcs'
         );
       },
       itemType () {
-        return Object.keys(item).includes('palettes')
+        
+        return Object.keys(this.item).includes('palettes')
           ? 'collection'
-          : Object.keys(item).includes('colors')
+          : Object.keys(this.item).includes('colors')
           ? 'palette'
-          : Object.keys(item).length === 2 && Object.keys(item).includes('value')
+          : Object.keys(this.item).includes('value')
           ? 'color'
           : null
       },
@@ -144,7 +164,60 @@ import {capitalize} from '~/utils/funcs'
       hide() {
         try {
           this.$refs.popover.hide()
+          this.view = null
         } catch {}
+      },
+      handleView(view) {
+        if (this.view === view) { 
+          this.view = null;
+          return
+        }
+        this.view = view
+      },
+      handleAction(props = {}) {
+        if(!this.itemTypeExists) { return }
+        const params = {
+          [this.itemType]: ['color'].includes(this.action) ? props : this.item
+        }
+        const parentId = !!props ? typeof props === 'string' ? props : !!props.id ? props.id : null : null;
+        if(typeof parentId === 'string') {
+          params[`${this.itemType === 'palette' ? 'collectionId' : 'paletteId'}`] = parentId
+        }
+        if(!this.onlyEmit) {
+          switch (this.action) {
+            case 'delete':
+              asyncDelay(400).then(() => this.$store.dispatch(`delete${capitalize(this.itemType)}`, this.item))
+              break;
+            case 'duplicate':
+              this.$store.dispatch(`duplicate${capitalize(this.itemType)}`, params)
+              break;
+            case 'move':
+              if(this.itemType !== 'collection') {
+                this.$store.dispatch(`move${capitalize(this.itemType)}`, params)
+              }
+              break;
+            case 'copyColors':
+              this.copyColors(props)
+              break;
+            case 'rename':
+              if (this.inputEl && this.inputEl.select) {
+                this.inputEl.select()
+              } else {
+                this.$store.dispatch(`update${capitalize(this.itemType)}`, { ...this.item, name: props })
+              }
+              break;
+            case 'color':
+              this.$store.dispatch('updateColor', props)
+              break;
+            default:
+              break;
+          }
+        }
+
+        if(this.closeOnClick) {
+          this.hide();
+        }
+        this.$emit(this.action, params)
       },
       copyColors(action) {
         const css = action.split('.')[0] === 'css';
@@ -170,26 +243,6 @@ import {capitalize} from '~/utils/funcs'
           return this.asyncDelay(750)
             .then(() => this.view = null)
         });
-      },
-      handleAction(props = {}) {
-        if(!this.itemTypeExists) { return }
-        switch (this.action) {
-          case 'delete':
-            this.$store.dispatch(`delete${capitalize(this.itemType)}`)
-            break;
-          case 'duplicate':
-            this.$store.dispatch(`duplicate${capitalize(this.itemType)}`)
-            break;
-          case 'move':
-            if(this.itemType === 'collection') {return};
-            this.$store.dispatch(`move${capitalize(this.itemType)}`)
-            break;
-          case 'copy-colors':
-            this.copyColors(props)
-            break;
-          default:
-            break;
-        }
       }
     }
   })

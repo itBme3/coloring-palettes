@@ -66,7 +66,7 @@ export default {
       // view: null, 
       selectedColors: [], 
       steps: {
-        scale: 60,
+        scale: 72,
         random: 100,
         shade: 10
       }
@@ -98,7 +98,6 @@ export default {
   methods: {
     newColor(color) {
       const newColor = { ...color, value: chroma(color.value).hex() };
-      console.log({ newColor });
       this.$store.dispatch('addColorToPalette', {
         color: newColor,
         paletteId: this.palette.id,

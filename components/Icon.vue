@@ -25,7 +25,7 @@ export default {
         collection: 'object-group',
         delete: 'trash',
         copy: 'clipboard',
-        'copy-colors': 'clipboard',
+        'copyColors': 'clipboard',
         send: 'arrow-up-right-from-square',
         move: 'arrow-up-right-from-square',
         rename: 'i-cursor',

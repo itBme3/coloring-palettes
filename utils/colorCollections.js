@@ -65,7 +65,6 @@ export const generateCollectionOrPaletteName = (
       if (current.handles.includes(res.handle)) {
         res.handle = handleize(`${suggestedName} (${x})`);
       }
-      console.log(x);
       x = x + 1;
     } else {
       done = true;

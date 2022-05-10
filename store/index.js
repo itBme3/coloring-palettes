@@ -241,7 +241,10 @@ export const actions = {
 
   
 
-  updateColor ({commit}, color) {
+  updateColor ({ commit }, color) {
+    if (color.name.indexOf('#') === 0 && chroma.valid(color.name)) {
+      color.name = color.value
+    }
     const palettes = JSON.parse(JSON.stringify(
       this.getters.storedPalettes.map(palette => {
           return {
@@ -263,7 +266,7 @@ export const actions = {
     }
     const collection = this.getters.storedPalettes.filter(p => p.id === collectionId)[0] || null
     dispatch('deletePalette', palette);
-    asyncDelay(400).then(() => commit('updatePalette', {
+    asyncDelay(50).then(() => commit('updatePalette', {
       ...collection, palettes: [palette.id, ...collection.palettes]
     }))
   },
@@ -278,7 +281,7 @@ export const actions = {
     }
     const palette = this.getters.storedPalettes.filter(p => p.id === paletteId)[0] || null
     dispatch('deleteColor', color);
-    asyncDelay(400).then(() => commit('updatePalette', {
+    asyncDelay(50).then(() => commit('updatePalette', {
       ...palette, colors: [color, ...palette.colors]
     }))
   },

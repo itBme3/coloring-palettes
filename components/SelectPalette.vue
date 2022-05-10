@@ -1,8 +1,11 @@
 <template>
-  <div class="select-palette rounded">
+  <div class="select-palette rounded p-2 pt-4">
     <InputSearch 
+      v-if="!hideSearch"
       ref="searchInput"
-      v-if="!hideSearch" v-model="q" />
+      v-model="q"
+      class="mb-3 mx-1"
+    />
     <div class="palettes space-y-2 relative z-1">
       <ColorPaletteGridItem
         v-for="palette in palettes"

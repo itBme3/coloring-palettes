@@ -13,7 +13,7 @@
   .colors {
     @apply flex content-start items-start flex-wrap;
     .color-swatch {
-      @apply mr-2 mb-2 flex-shrink max-w-[50px];
+      @apply mr-2 mb-1 w-20 h-20;
     }
   }
   &.style-compact {

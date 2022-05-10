@@ -34,7 +34,12 @@
         >
           {{ palettesMap[palette].name }}
         </p>
-        <div class="colors">
+        <div 
+          class="colors flex flex-wrap w-full"
+          :class="{
+            'flex flex-nowrap': palettesMap[palette].colors.length < 14,
+            '': palettesMap[palette].colors.length >= 14,
+          }">
           <ColorSwatch
             v-for="(color, ii) in palettesMap[palette].colors"
             :key="color + '-' + ii"
@@ -43,7 +48,7 @@
             :actions="false"
             :delay-show="ii * 10"
             swatch-style="simple"
-            style="min-width: 20px; width: 100%"
+            :style="{minWidth: '20px', width: `calc(100% / ${palettesMap[palette].colors.length})`}"
           />
         </div>
       </div>
@@ -104,7 +109,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.colors {
-  @apply space-x-px;
-}
 </style>

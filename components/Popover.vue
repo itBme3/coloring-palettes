@@ -14,6 +14,8 @@
             }"
           :style="{
             ...popoverPosition,
+            animationFillMode: 'both',
+            maxWidth: maxWidth + ' !important'
           }">
           <div class="popover-heading"
             :class="{
@@ -56,9 +58,9 @@ import {asyncDelay} from '~/utils/funcs'
       Teleport
     },
     props: {
-      position: {
-        type: String, /* center start end */
-        default: 'center'
+      maxWidth: {
+        type: String,
+        default: '320px'
       },
       classes: {
         type: Object,
@@ -96,6 +98,7 @@ import {asyncDelay} from '~/utils/funcs'
       showing(val) {
         if(!val) {
           try {
+            this.$emit('exited');
             this.$refs.containerEl.removeEventListener('click', this.stopPropagationOnClick);
           } catch {}
         } else {
@@ -206,12 +209,16 @@ import {asyncDelay} from '~/utils/funcs'
   })
 </script>
 
-<style scoped>
+<style lang="scss">
 .popover-container {
   animation-delay: .2s;
-  max-height: calc(100vh - 2rem);
-  max-width: calc(100vw - 2rem);
-  @apply bg-shade-30 shadow-xl rounded p-1 z-9999;
+  // max-height: calc(100vh - 2rem);
+  width: auto;
+  @apply bg-shade-30 shadow-xl shadow-shade-10/30 rounded-md p-1 z-9999;
+  .popover-body {
+    @apply overflow-scroll;
+    max-height: 80vh;
+  }
 }
 .popover-heading {
   @apply rounded bg-shade-40 bg-opacity-30 mb-1;

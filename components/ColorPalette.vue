@@ -134,3 +134,9 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.color-palette {
+  @apply max-w-4xl mx-auto;
+}
+</style>

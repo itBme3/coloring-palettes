@@ -2,25 +2,23 @@
   <div class="color-mixing-scale">
       <ColorMixingResultsWrap>
         <div class="color-results flex flex-wrap justify-center w-full">
-          <template v-for="(color, i) in results">
             <ColorSwatch
-              :key="color.id + '-' + i"
-              :delay-show="i * 3"
+              v-for="color in results"
+              :key="color.id"
               :color="color"
               animation-name="scale-fade"
+              :animation-delay="0"
+              :update-color-swatch-click="false"
               class="mb-2 mr-2"
               @click="(e) => $emit('selectedColor', color)"
             />
-          </template>
         </div>
       </ColorMixingResultsWrap>
-    </div>
   </div>
 </template>
 
 <script>
 import chroma from 'chroma-js';
-import { mapGetters } from 'vuex';
 import { v4 as uuid } from 'uuid';
 export default {
   props: {

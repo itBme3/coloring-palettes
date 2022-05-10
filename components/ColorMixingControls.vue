@@ -37,22 +37,11 @@
             :color="color"
             :actions="false"
             class="group"
+            animation-name="scale-fade-pop"
+            :draggable="true"
+            :only-emit="true"
+            @color="(e) => updateColor(color, e)"
           >
-            <Icon
-              :key="'drag-handle'"
-              class="
-                drag-handle
-                text-base
-                cursor-move
-                absolute
-                left-1
-                top-1
-                opacity-0
-                group-hover:opacity-40
-                text-black
-              "
-              icon="grip"
-            />
             <Icon
               :key="'close'"
               class="
@@ -70,14 +59,44 @@
             />
           </ColorSwatch>
         </draggable>
-        <v-popover
-          v-if="selectedColors.length < 6"
+
+        <!-- <Popover ref="popoverElem">
+          <template slot="trigger">
+            <button 
+              v-if="selectedColors.length < maxSelected"
+              class="add-color color-swatch ml-3 text-base bg-transparent">
+              <Icon class="m-auto" icon="add" />
+            </button>
+          </template>
+          <div class="max-w-lg mx-auto flex flex-col pt-1 pb-2">
+            <Transition name="down-fade">
+              <SelectColor 
+                @color="e => {
+                  selectedColors.push(e)
+                  $refs.popoverElem.hide()
+                }" 
+              />
+            </Transition>
+          </div>
+        </Popover> -->
+
+        <SelectColor
+          v-if="selectedColors.length < maxSelected"
+          @update="e => {
+            selectedColors.pop()
+            selectedColors.push(e)
+          }"
+          @color="e => selectedColors.push(e)"
+        />
+
+        <!-- <v-popover
+          v-if="selectedColors.length < maxSelected"
           class="mr-auto"
           :handle-resize="true"
           popover-class="flex flex-col shadow-lg !-left-[50px] mt-10"
           placement="right-start"
           ref="popoverElem">
-            <div v-if="selectedColors.length < 6"
+            <div v-if="selectedColors.length < maxSelected"
               class="add-color color-swatch ml-3 text-base">
               <Icon class="m-auto" icon="add" />
             </div>
@@ -95,16 +114,24 @@
                 </Transition>
               </div>
             </template>
-          </v-popover>
-        
+          </v-popover> -->
+        <!-- <PopoverActions 
+          v-if="editingColor"
+          :item="editingColor"
+          ref="colorPopover"
+          action="color"
+          :only-emit="true"
+        /> -->
       </div>
     </div>
   </div>
 </template>
 <script>
 import draggable from 'vuedraggable';
+import { asyncDelay } from '../utils/funcs';
+import Popover from './Popover.vue';
 export default {
-  components: { draggable },
+  components: { draggable, Popover },
   props: {
     colors: {
       type: Array,
@@ -124,6 +151,8 @@ export default {
       steps:
         this.mixType === 'shade' ? 10 : this.mixType === 'random' ? 100 : 60,
       selectedColors: [],
+      editingColor: null,
+      maxSelected: 9
     };
   },
   mounted() {
@@ -146,16 +175,19 @@ export default {
     },
   },
   methods: {
-    resizePopover() {
-      setTimeout(() => {
-        console.log(this.$refs.popoverElem)
-      }, 500)
+    updateColor(color, value) {
+      this.selectedColors = this.selectedColors.map(c => {
+        return c.id === color.id 
+          ? { ...c, value }
+          : c
+      })
     }
   }
 };
 </script>
 <style lang="scss">
 .add-color {
-  @apply flex items-center content-center border-2 border-dashed hover:border-solid hover:bg-shade-30 border-shade-30 text-center;
+  @apply flex items-center content-center border-2 border-dashed hover:border-solid text-center;
+  @apply hover:bg-shade-30 border-shade-30 #{!important};
 }
 </style>

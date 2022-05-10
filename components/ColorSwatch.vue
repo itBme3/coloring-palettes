@@ -25,8 +25,8 @@
                 top-1
                 opacity-0
                 text-opacity-0
-                group-hover:opacity-40
-                group-hover:text-opacity-100
+                group-hover:opacity-100
+                group-hover:text-opacity-40
                 z-10
               "
               :style="{color: textColor}"
@@ -66,7 +66,7 @@
       <div
         v-if="activeActions && activeActions.filter(a => a !== 'color').length"
         key="actions"
-        class="color-swatch-actions group"
+        class="color-swatch-actions"
         @mouseenter="actionsHovered = true"
         
       >
@@ -88,8 +88,8 @@
           :close-on-click="true">
           <template #trigger v-if="collapsedActions">
             <button 
-              class="menu-toggle"
-              :style="{color: `rgba(${chroma(textColor).rgba().slice(0,3).join(', ')}, var(--tw-text-opacity))`, backgroundColor: `rgba(${chroma(textColor).rgba().slice(0,3).join(', ')}, var(--tw-bg-opacity))` }">
+              class="menu-toggle absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 m-0 bg-opacity-10 text-shade-220 w-6 h-6 flex content-center items-center text-center p-0 text-opacity-50 hover:text-opacity-70"
+              :style="{color: textColor, backgroundColor: textColor.split('text-').join('bg-') }">
               <Icon 
                 class="m-auto"
                 :icon="`ellipsis${swatchStyle === 'list-item' ? '-vertical' : ''}`"
@@ -252,16 +252,17 @@ export default defineComponent({
         .scale(['#fff', this.color.value])
         .colors(100)[10];
       const darkText = chroma.scale(['#000', this.color.value]).colors(100)[10];
-      return chroma.contrast(darkText, this.color.value) >= 4.5
+      const textColor = chroma.contrast(darkText, this.color.value) >= 4.5
         ? darkText
         : lightText;
+      return `rgba(${chroma(textColor).rgba().slice(0,3).join(', ')}, var(--tw-text-opacity))`
     },
     log(e) {
       console.log(e)
     },
     handleAction(action) {
-      if(this.$refs[`${action}Popover`] && this.$refs[`${action}Popover`][0].show && !this.onlyEmit) {
-        this.$refs[`${action}Popover`][0].show()
+      if(this.$refs[`${action}Popover`] && this.$refs[`${action}Popover`].show && !this.onlyEmit) {
+        this.$refs[`${action}Popover`].show()
       }
       this.$emit(action, this.color.value);
     },
@@ -293,7 +294,6 @@ export default defineComponent({
     }
   }
   .menu-toggle {
-    @apply absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 m-0 bg-opacity-10 text-shade-220 w-6 h-6 flex content-center items-center text-center p-0 text-opacity-50 hover:text-opacity-70;
     @apply hover:bg-opacity-20 #{!important};
   }
 

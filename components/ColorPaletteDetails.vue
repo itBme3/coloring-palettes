@@ -39,32 +39,35 @@
       />
     </transition>
     <transition name="up-fade" :duration="{ enter: 500, leave: 100 }">
-      <div
-        v-if="view.includes('colors')"
-        class="color-palette-colors flex flex-col"
-        :class="{
-          'space-y-2': !isSidebar || !sidebarCollapsed,
-          'space-y-px': isSidebar && sidebarCollapsed,
-        }"
-        style="transition-delay: 0.2s !important"
-      >
+      <draggable
+          v-if="view.includes('colors')"
+          v-model="colors"
+          tag="div"
+          class="color-palette-colors flex flex-col"
+          :class="{
+            'space-y-2': !isSidebar || !sidebarCollapsed,
+            'space-y-px': isSidebar && sidebarCollapsed,
+          }"
+          style="transition-delay: 0.2s !important"
+        >
         <ColorSwatch
           v-for="(color, i) in palette.colors"
           :key="color.id"
           :color="color"
-          :delay-show="i * 100"
+          :delay-show="0"
           :class="{
             'just-added delay-500': Date.now() - color.createdAt < 3000,
           }"
           :swatch-style="isSidebar && sidebarCollapsed ? 'simple' : 'list-item'"
           :clickable="!sidebarCollapsed && isSidebar"
           :actions="true"
+          :draggable="true"
           @updateColor="e => $store.dispatch('updateColor', e)"
         />
-        <div v-if="sidebarCollapsed"
+        <div v-if="sidebarCollapsed && isSidebar"
            class="absolute inset-0 z-9 cursor-pointer"
            @click="sidebarCollapsed = false" />
-      </div>
+      </draggable>
     </transition>
   </div>
 </template>
@@ -72,7 +75,12 @@
 <script>
 import { debounce } from 'lodash';
 import { mapGetters } from 'vuex';
-export default {
+import draggable from 'vuedraggable';
+import Vue from 'vue'
+export default Vue.extend({
+  components: {
+    draggable
+  },
   props: {
     paletteId: {
       type: String,
@@ -115,6 +123,14 @@ export default {
         this.storedPalettes?.filter((p) => p.id === this.paletteId)[0] || null
       );
     },
+    colors: {
+      get() {
+        return this.palette && this.palette.colors ? this.palette.colors : []
+      },
+      set(colors) {
+        this.$store.dispatch('updatePalette', {palette: {...this.palette, colors}})
+      }
+    }
   },
   methods: {
     updatePaletteName: debounce(function (e) {
@@ -123,17 +139,19 @@ export default {
       });
     }, 100),
     updateColor(color, value) {
-      console.log({color, value})
       this.$store.commit('updateColor', { ...color, value })
     }
   },
-};
+})
 </script>
 <style lang="scss" scoped>
 .is-sidebar {
   @apply bg-shade-35 right-1 transition-all ease-in-out top-1 fixed h-[calc(100vh-0.5rem)] w-[200px] p-4 rounded shadow-lg;
   input.title {
     @apply focus:ring-transparent focus:border-transparent focus:outline-0 ring-offset-transparent #{!important};
+  }
+  .color-swatch {
+    @apply h-8 rounded-sm #{!important};
   }
   &.collapsed {
     @apply w-10 right-0 top-0 p-1;
