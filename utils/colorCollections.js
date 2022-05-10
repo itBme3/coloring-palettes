@@ -34,11 +34,12 @@ export const initialPalettes = [
 
 export const generateCollectionOrPaletteName = (
   currentItems,
-  suggestedName = 'New'
+  suggestedName = 'New',
+  suggestedHandle = null
 ) => {
   const res = {
     name: suggestedName,
-    handle: handleize(suggestedName),
+    handle: !suggestedHandle ? handleize(suggestedName) : suggestedHandle,
   };
   let x = 0;
   let done = false;

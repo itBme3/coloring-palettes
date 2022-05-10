@@ -55,7 +55,7 @@ export default {
     }),
     collection() {
       return (
-        this.collections?.filter((c) => c.id === this.collectionId)[0] || null
+        this.collections?.filter((c) => [c.handle, c.id].includes(this.collectionId))[0] || null
       );
     },
   },

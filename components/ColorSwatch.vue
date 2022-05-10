@@ -1,68 +1,155 @@
 <template>
   <TransitionGroup
-    :class="{ 'color-swatch': true, 'is-static': !actions && !clickable }"
+    :class="{
+      'color-swatch group': true,
+      'is-static': !actions && !clickable && !updateColorSwatchClick,
+      ['style-' + swatchStyle]: true,
+    }"
     :name="animationName"
     tag="div"
     @mouseenter.native="hovered = true"
     @mouseleave.native="hovered = false"
+    :handle="dragHandleSelector"
   >
-    <slot />
-    <div
-      v-if="activeActions"
-      key="actions"
-      class="color-swatch-actions"
-      @mouseenter="actionsHovered = true"
-      
-    >
-      <Transition name="scale-fade-pop">
-        <div v-if="hovered" class="toggle-actions">
-          <button
-            v-for="anAction in activeActions"
-            class="icon-button toggle-action-button"
-            @click="(e) => handleAction(anAction)"
-          >
-            <Icon :icon="Array.isArray(anAction) ? anAction[1] : anAction" />
-          </button>
-        </div>
-      </Transition>
-      <ColorPicker
-        v-if="activeAction === 'edit'"
-        picker-type="spectrum"
-        :value="color.value"
-        @update="(e) => $emit('updateColor', { ...color, value: e })"
-      />
-      <button
-        v-if="activeAction"
-        class="toggle-action-button close"
-        style="z-index: 3; position: absolute; left: 0; top: 0"
-        @click="
-          hover = false;
-          activeAction = false;
-          actionsHovered = false;
-        "
+  <template v-if="show">
+      <slot v-if="draggable"
+         name="dragHandle">
+            <Icon
+              key="drag-handle"
+              class="
+                drag-handle
+                text-base
+                cursor-move
+                absolute
+                left-1
+                top-1
+                opacity-0
+                text-opacity-0
+                group-hover:opacity-40
+                group-hover:text-opacity-100
+                z-10
+              "
+              :style="{color: textColor}"
+              icon="grip"
+            />
+      </slot>
+      <slot />
+      <div
+        key="color"
+        class="color-swatch-color group"
+        :class="{
+          'cursor-default !scale-100 !hover:scale-100': !clickable,
+        }"
+        :style="{
+          background: hexColor,
+          color: textColor,
+          transition: 'ease-in-out all ' + this.animationDuration,
+        }"
+        @click="() => {
+          $emit('click', color);
+          updateColorSwatchClick && $refs.colorPopover && $refs.colorPopover[0] ? $refs.colorPopover[0].show() : ''
+        }"
       >
-        <Icon icon="close"></Icon>
-      </button>
-    </div>
-    <div
-      key="color"
-      class="color-swatch-color"
-      v-if="show"
-      :class="{
-        ['style-' + swatchStyle]: true,
-        'cursor-default !scale-100 !hover:scale-100': !clickable,
-      }"
-      :style="{
-        background: hexColor,
-        color: textColor,
-        transition: 'ease-in-out all ' + this.animationDuration,
-      }"
-      @click="$emit('click', color)"
-    >
-      <small v-if="swatchStyle !== 'simple'">{{
-        !!color.name ? color.name : color.value
-      }}</small>
-    </div>
+        <small v-if="swatchStyle !== 'simple'"
+          class="m-auto opacity-50 group-hover:opacity-100"
+          :class="{
+            'text-xs': collapsedActions,
+            'text-base': !collapsedActions,
+          }">
+          {{ color.value }}
+        </small>
+      </div>
+
+
+
+
+      <div
+        v-if="activeActions && activeActions.filter(a => a !== 'color').length"
+        key="actions"
+        class="color-swatch-actions group"
+        @mouseenter="actionsHovered = true"
+        
+      >
+        <input 
+          v-if="!collapsedActions"
+          ref="nameInput"
+          key="color-name-input"
+          type="text"
+          class="my-auto ml-4 mr-8 bg-opacity-0 group-hover:bg-shade-40 group-hover:bg-opacity-5 group-hover:text-shade-190 focus-visible:ring-offset-shade-20 w-full"
+          :style="{
+            color: collapsedActions ? textColor : 'rgb(200,200,220)'
+          }"
+          :value="!!color.name ? color.name : color.value"
+          @input="e => $store.dispatch('updateColor', { ...color, name: e.target.value })"
+        />
+        <component 
+          :is="!collapsedActions ? 'Transition' : 'Popover'"
+          :name="animationName"
+          :close-on-click="true">
+          <template #trigger v-if="collapsedActions">
+            <button 
+              class="menu-toggle"
+              :style="{color: `rgba(${chroma(textColor).rgba().slice(0,3).join(', ')}, var(--tw-text-opacity))`, backgroundColor: `rgba(${chroma(textColor).rgba().slice(0,3).join(', ')}, var(--tw-bg-opacity))` }">
+              <Icon 
+                class="m-auto"
+                :icon="`ellipsis${swatchStyle === 'list-item' ? '-vertical' : ''}`"
+              />
+            </button>
+          </template>
+
+          <div v-if="hovered || collapsedActions"
+            class="toggle-actions flex"
+            key="toggleActions"
+            :class="{
+              'flex-col content-start items-stretch space-y-1 mx-0': collapsedActions,
+              'flex-row content-end items-center space-x-1 ml-auto mr-0': !collapsedActions,
+            }">
+              <button
+                v-for="anAction in activeActions"
+                v-tooltip:above="!collapsedActions ? anAction : undefined"
+                class="icon-button toggle-action-button items-center flex group"
+                :class="{
+                  'content-center': !collapsedActions,
+                  'content-end py-2 w-full': collapsedActions,
+                }"
+                @click="(e) => handleAction(anAction)"
+              >
+                <small class="text-xs text-gray-400 font-normal mr-auto pr-2" v-if="collapsedActions">{{anAction}}</small>
+                <Icon
+                  class="opacity-50 group-hover:opacity-100"
+                  :icon="Array.isArray(anAction) ? anAction[1] : anAction"
+                />
+              </button>
+          </div>
+        </component>
+
+      <template v-if="hovered">
+        <PopoverActions
+          v-for="action in activeActions" 
+          :key="action"
+          :ref="action + 'Popover'"
+          :item="color"
+          :action="action"
+          :input-el="$refs.nameInput"
+          :only-emit="onlyEmit"
+          :close-on-click="['delete'].includes(action)"
+          @color="(e) => action === 'color' ? $emit(action, e.color.value) : ''"
+          >
+        </PopoverActions>
+      </template>
+
+      </div>
+    </template>
+    <PopoverActions
+      v-if="activeActions && activeActions.join && activeActions.join('') === 'color'"
+      key="changeColor"
+      ref="colorPopover"
+      :item="color"
+      action="color"
+      :only-emit="onlyEmit"
+      :close-on-click="false"
+      @color="(e) => $emit('color', e.color.value)">
+    </PopoverActions>
   </TransitionGroup>
 </template>
 
@@ -81,7 +168,7 @@ export default defineComponent({
     },
     swatchStyle: {
       type: String,
-      default: 'tile',
+      default: 'tile', /* tile, list-item, simple */
     },
     delayShow: {
       type: Number,
@@ -107,9 +194,21 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    dragHandleSelector: {
+      type: String,
+      default: '.drag-handle',
+    },
+    updateColorSwatchClick: {
+      type: Boolean,
+      default: true
+    },
+    onlyEmit: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
-    const possibleActions = ['edit', 'copy', 'delete', 'duplicate', 'save'];
+    const possibleActions = ['rename', 'color', 'copyColors', 'delete', 'duplicate', 'move'];
     return {
       show: false,
       editingColor: false,
@@ -124,7 +223,10 @@ export default defineComponent({
           ? this.actions
           : this.actions === true
           ? possibleActions
+          : this.updateColorSwatchClick 
+          ? ['color']
           : false,
+      paletteId: null
     };
   },
   mounted() {
@@ -138,12 +240,13 @@ export default defineComponent({
       this.textColor = this.getTextColor();
     },
   },
-  // computed: {
-  //   activeActions() {
-  //     return this.actions === true ? this.possibleActions : Array.isArray(this.actions) ? this.actions : false
-  //   }
-  // },
+  computed: {
+    collapsedActions() {
+      return (this.swatchStyle !== 'list-item' || this.$el.offsetWidth < 200)
+    }
+  },
   methods: {
+    chroma,
     getTextColor() {
       const lightText = chroma
         .scale(['#fff', this.color.value])
@@ -153,22 +256,14 @@ export default defineComponent({
         ? darkText
         : lightText;
     },
+    log(e) {
+      console.log(e)
+    },
     handleAction(action) {
-      const handlers = {
-        edit: () => {
-          this.activeAction = 'edit';
-        },
-        copy: () => {
-          this.activeAction = 'edit';
-        },
-        save: () => {
-          this.activeAction = 'edit';
-        },
-      };
-      if (Object.keys(handlers).includes(action)) {
-        return handlers[action]();
+      if(this.$refs[`${action}Popover`] && this.$refs[`${action}Popover`][0].show && !this.onlyEmit) {
+        this.$refs[`${action}Popover`][0].show()
       }
-      this.$emit(action, this.color);
+      this.$emit(action, this.color.value);
     },
   },
 });
@@ -176,62 +271,71 @@ export default defineComponent({
 
 <style lang="scss">
 .color-swatch {
-  font-size: 7px;
-  width: 50px;
-  height: 50px;
-  border-radius: 0.3rem;
-  position: relative;
-  z-index: 0;
-  &.style-simple {
-    width: 20px;
-    border-radius: 0;
-  }
-  &:not(.is-static) {
-    cursor: pointer;
-  }
-  &:hover {
-    z-index: 2;
-    &:not(.is-static) {
-      transform: scale(1.1);
-      transition: all 0.05s ease-in-out !important;
-    }
-  }
-  .color-swatch-actions {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    transition: all 0.1s ease-in;
-    .toggle-actions {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      .toggle-action-button {
-        font-size: 9px;
-        padding: 0.2rem 0.15rem;
-        transform: scale(0.9);
-      }
-    }
-    .color-picker {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      height: auto;
+  @apply relative z-0 w-16 h-16;
+  &:not(.style-simple) {
+    @apply rounded;
+    .color-swatch-color {
+      @apply rounded;
     }
   }
   .color-swatch-color {
-    width: 100%;
-    height: 100%;
-    border-radius: 0.3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    &.style-simple {
-      border-radius: 0;
+    @apply w-full h-full flex items-center content-center text-center;
+  }
+  .color-swatch-actions {
+    @apply absolute inset-0 top-1/2 transition-all ease-in duration-100 transform -translate-y-1/2;
+    .toggle-actions {
+      .toggle-action-button {
+        @apply text-[9px] px-[.2rem] py-[.15rem] transform scale-90;
+      }
+    }
+    .color-picker {
+      @apply absolute inset-0 h-auto;
     }
   }
+  .menu-toggle {
+    @apply absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 m-0 bg-opacity-10 text-shade-220 w-6 h-6 flex content-center items-center text-center p-0 text-opacity-50 hover:text-opacity-70;
+    @apply hover:bg-opacity-20 #{!important};
+  }
+
+  &.style-simple {
+    @apply w-5;
+    .color-swatch-color {
+      @apply rounded-sm;
+    }
+  }
+  &.style-list-item {
+    @apply w-full bg-shade-30 shadow py-1 pl-1 overflow-x-scroll h-20 flex items-center content-between;
+    .popover {
+      @apply ml-auto mr-0;
+    }
+    .color-swatch-color {
+      @apply w-full absolute inset-0;
+      * {
+        @apply m-auto;
+      }
+    }
+    .color-swatch-actions  {
+      @apply sm:relative inset-auto ml-auto my-auto mr-0 flex flex-row w-full items-center translate-y-0 content-end;
+      .toggle-actions {
+        @apply mr-4;
+      }
+      .toggle-action-button {
+        @apply scale-100 text-base w-full p-2;
+      }
+    }
+  }
+  &:not(.is-static) {
+    @apply transform cursor-pointer hover:scale-103 scale-100 transition-all duration-75 ease-in-out hover:z-2;
+  }
 }
+  
+  .popover {
+      .toggle-actions {
+          @apply flex flex-col content-start items-stretch space-y-2;
+          button {
+            @apply w-full;
+          }
+      }
+  }
+
 </style>

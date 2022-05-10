@@ -5,8 +5,8 @@
   >
     <aside ref="paletteNav" class="sticky float-left top-2 w-[160px] rounded-md border border-shade-30 p-4">
       <div class="toggle-buttons flex flex-col space-y-2 mb-6 relative z-9">
-        <template v-for="editView in ['palette', 'mixing']">
           <button
+            v-for="editView in ['palette', 'mixing']"
             :key="editView"
             @click="view = editView"
             class="hover:text-white tracking-widest uppercase font-black border-2 border-t-0 border-x-0 border-transparent text-lg text-shade-180 bg-shade-20 bg-opacity-40"
@@ -17,7 +17,6 @@
           >
             {{ editView }}
           </button>
-        </template>
           <ColorPaletteActions
             v-if="view === 'palette'"
             class="order-first"
@@ -100,7 +99,7 @@ export default {
     }),
     palette() {
       return (
-        this.storedPalettes?.filter((p) => p.id === this.paletteId)[0] || null
+        this.storedPalettes?.filter((p) => [p.id, p.handle].includes(this.paletteId))[0] || null
       );
     },
   },

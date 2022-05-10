@@ -153,7 +153,7 @@ export default {
       return (
         (this.$route.path.split('/')[1] === 'palettes' &&
           this.$route.params.id) ||
-        !!this.$route.params.paletteId
+        !!this.$route.params.palette
       );
     },
     tooltipAttribute() {
@@ -184,7 +184,7 @@ export default {
       const isPalettePage =
         (this.$route.path.split('/')[1] === 'palettes' &&
           this.$route.params.id) ||
-        this.$route.params.paletteId;
+        this.$route.params.palette;
       this.view = null;
       if (!isPalettePage) {
         return;
@@ -193,8 +193,8 @@ export default {
       this.$store.dispatch('deletePalette', paletteId);
       setTimeout(() => {
         this.$router.push(
-          this.$route.params.collectionId
-            ? `/collections/${this.$route.params.collectionId}`
+          this.$route.params.collection
+            ? `/collections/${this.$route.params.collection}`
             : `/palettes`
         );
       }, 500);
@@ -206,8 +206,8 @@ export default {
           break;
         case 'edit':
           this.$router.push(
-            this.$route.params.collectionId
-              ? `/collections/${this.$route.params.collectionId}/${this.palette.id}`
+            this.$route.params.collection
+              ? `/collections/${this.$route.params.collection}/${this.palette.id}`
               : `/palettes/${this.palette.id}`
           );
           break;

@@ -1,3 +1,6 @@
+export const asyncDelay = (ms) => new Promise(resolve => setTimeout(() => resolve(true), ms))
+
+
 export const handleize = (strng, reaplceSpacesWith = '-') => {
   return strng
     .toLowerCase()

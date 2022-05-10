@@ -6,6 +6,7 @@ import {
   initialPalettes,
   defaultPaletteColors,
 } from '~/utils/defaults';
+import { asyncDelay } from '../utils/funcs';
 
 export const state = () => ({
     stored: {
@@ -42,15 +43,15 @@ export const mutations = {
   },
 
   newPalette(state, params) {
-    const { colors = [], name = `New Palette` } = params || {};
+    const { colors = [], name = `New Palette`, handle = 'new-palette', id = uuidv4() } = params || {};
     if (!state?.stored?.palettes?.length) {
       state.stored.palettes = initialPalettes;
     }
     state.stored.palettes.unshift({
       colors,
       createdAt: Date.now(),
-      id: uuidv4(),
-      ...generateCollectionOrPaletteName(state.stored.palettes, name),
+      id,
+      ...generateCollectionOrPaletteName(state.stored.palettes, name, handle),
     });
   },
 
@@ -64,13 +65,11 @@ export const mutations = {
     if (!palette || objectsAreTheSame(colors, palette.colors)) {
       return;
     }
-    console.log({ colors });
     palettes.filter((c) => c.id === paletteId)[0].colors = colors;
     state.stored.palettes = [];
     state.stored.palettes.forEach((p) =>
       state.stored.palettes.push(p.id === paletteId ? { ...p, colors } : p)
     );
-    console.log(state.stored.palettes);
   },
 
   setEditing(state, params) {
@@ -155,13 +154,11 @@ export const actions = {
       }
       return [...acc, c];
     }, []);
-    console.log({ palettes });
     commit('setPalettes', palettes);
   },
 
   deletePalette({ state, commit }, id) {
     const current = state?.stored?.palettes?.length ? state?.stored?.palettes : initialPalettes;
-    console.log('id: ', id);
     commit(
       'setPalettes',
       current.filter((p) => p.id !== id)
@@ -176,7 +173,6 @@ export const actions = {
       )
     );
     if (!palette) {
-      return console.log(`could not find palette with id: ${paletteId}`);
     }
     palette.colors.unshift({ ...color, createdAt: Date.now() });
     dispatch('updatePalette', {
@@ -194,11 +190,58 @@ export const actions = {
       return;
     }
     palettes.unshift(paletteId);
-    commit('setPalettesOnColletion', { collectionId: collection.id, palettes });
+    commit('setPalettesOnCollection', { collectionId: collection.id, palettes });
   },
 
+  duplicateCollection ({ commit }, params) {
+    const { collection = null } = params;
+    if (!collection) {
+      return alert(`${JSON.stringify(collection)} is not accepted collection`)
+    }
+    const d = new Date();
+    let { name = `${collection.name} (${d.toLocaleDateString(d).split('/').join('-')} ${d.toLocaleTimeString().split(' ').join('')}` } = params;
+    const nameAndHandle = generateCollectionOrPaletteName(this.getters.storedCollections, name, handleize(name));
+    commit('newCollection', { ...collection, ...nameAndHandle, id: uuidv4() })
+    window.open(`/collections/${nameAndHandle.handle}`, '_blank')
+  },
+
+  duplicatePalette ({ commit }, params) {
+    const { palette = null, collectionId = null } = params;
+    if (!palette) {
+      return alert(`${JSON.stringify(palette)} is not accepted palette`)
+    }
+    const d = new Date();
+    let { name = `${palette.name} (${d.toLocaleDateString(d).split('/').join('-')} ${d.toLocaleTimeString().split(' ').join('')}` } = params;
+    const nameAndHandle = generateCollectionOrPaletteName(this.getters.storedPalettes, name, handleize(name));
+    const newPaletteId = uuidv4()
+    commit('newPalette', { ...palette, ...nameAndHandle, id: newPaletteId })
+    if (collectionId) {
+      const collection = this.getters.storedCollections.filter(c => c.id === collectionId)[0];
+      if (!collection) { return }
+      commit('updateCollection', { ...collection, palettes: [newPaletteId, ...collection.palettes] });
+    }
+    window.open(`/palettes/${nameAndHandle.handle}`, '_blank')
+  },
+
+  duplicateColor ({ commit }, params) {
+    const { color = null, paletteId = null } = params;
+    if (!color) {
+      return alert(`${JSON.stringify(color)} is not accepted color`)
+    }
+    const palette = this.getters.storedPalettes.filter(p => p.id === paletteId)[0] || null
+    if (!paletteId || !palette) {
+      return alert(`"${JSON.stringify(paletteId)}" is not a valid paletteId`)
+    }
+    const value = color.value || 'cyan';
+    const { name = value } = color;
+    commit('updatePalette', { ...palette, colors: [{ name, value, id: uuidv4() }, ...(palette.colors || [])] })
+    if(!this.$route.params.palette || this.$route.params.palette)
+    window.open(`/palettes/${nameAndHandle.handle}`, '_blank')
+  },
+
+  
+
   updateColor ({commit}, color) {
-    console.log(color);
     const palettes = JSON.parse(JSON.stringify(
       this.getters.storedPalettes.map(palette => {
           return {
@@ -207,9 +250,51 @@ export const actions = {
           }
         })
     ));
-    console.log(palettes)
     commit('setPalettes', palettes)
-  }
+  },
+
+  movePalette ({ dispatch, commit }, params) {
+    const { palette, collectionId } = params;
+    if (!palette) {
+      return alert(`${JSON.stringify(palette)} is not accepted palette`)
+    }
+    if (!collectionId || !collection) {
+      return alert(`"${JSON.stringify(collectionId)}" is not a valid collectionId`)
+    }
+    const collection = this.getters.storedPalettes.filter(p => p.id === collectionId)[0] || null
+    dispatch('deletePalette', palette);
+    asyncDelay(400).then(() => commit('updatePalette', {
+      ...collection, palettes: [palette.id, ...collection.palettes]
+    }))
+  },
+
+  moveColor ({ dispatch, commit }, params) {
+    const { color, paletteId } = params;
+    if (!color) {
+      return alert(`${JSON.stringify(color)} is not accepted color`)
+    }
+    if (!paletteId || !palette) {
+      return alert(`"${JSON.stringify(paletteId)}" is not a valid paletteId`)
+    }
+    const palette = this.getters.storedPalettes.filter(p => p.id === paletteId)[0] || null
+    dispatch('deleteColor', color);
+    asyncDelay(400).then(() => commit('updatePalette', {
+      ...palette, colors: [color, ...palette.colors]
+    }))
+  },
+
+  deleteColor ({ commit }, color) {
+    const palettes = JSON.parse(JSON.stringify(
+      this.getters.storedPalettes.map(palette => {
+          return {
+            ...palette,
+            colors: palette.colors.filter(c => c.id !== color.id)
+          }
+        })
+    ));
+    commit('setPalettes', palettes)
+  },
+
 };
 
 export const getters = {

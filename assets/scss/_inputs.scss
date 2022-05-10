@@ -36,9 +36,15 @@ input {
     .vc-sketch-field,
     .vc-sketch-controls {
       @apply py-2 pr-3;
+      .vc-input__input {
+        @apply w-full shadow text-center;
+      }
+    }
+    .vc-sketch-field {
+      @apply p-1 bg-shade-35;
     }
     &.spectrum {
-      @apply bg-shade-50 p-0;
+      @apply bg-shade-30 p-0;
       // background-color: transparent;
       .vc-saturation,
       .vc-saturation--white,
@@ -51,7 +57,9 @@ input {
       }
       .vc-sketch-sliders > *:not(.vc-sketch-hue-wrap),
       .vc-sketch-color-wrap,
-      .vc-sketch-field > *:not(.vc-sketch-field--double) {
+      .vc-sketch-field > *:not(.vc-sketch-field--double),
+      .vc-input__label, 
+      .vc-sketch-presets {
         @apply hidden;
       }
     }
