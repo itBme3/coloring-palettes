@@ -30,6 +30,7 @@
         item-style="compact"
         swatch-style="simple"
         class="!hover:scale-[1.01]"
+        @click="$router.push(`/${palette.id}`)"
       />
     </div>
   </div>

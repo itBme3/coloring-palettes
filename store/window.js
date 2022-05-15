@@ -44,7 +44,7 @@ export const mutations = {
             outer.appendChild(inner);
 
             const scrollbar = (outer.offsetWidth - inner.offsetWidth);
-
+      
             outer.parentNode.removeChild(outer);
             state.size = Object.assign({}, state.size, { width, height, isMobile, scrollbar })
       },

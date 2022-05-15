@@ -32,7 +32,7 @@ export const initialPalettes = [
   },
 ];
 
-export const generateCollectionOrPaletteName = (
+export const generatePaletteName = (
   currentItems,
   suggestedName = 'New',
   suggestedHandle = null

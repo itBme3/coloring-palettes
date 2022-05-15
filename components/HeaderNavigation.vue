@@ -2,20 +2,12 @@
   <nav class="header-navigation flex flex-col items-start content-center">
     
     <nuxt-link
-      v-if="$route.path !== '/'"
       to="/"
-      ><Icon icon="home"
-    /></nuxt-link>
-    <nuxt-link
-      to="/collections"
-      v-tooltip.right="{ content: 'collections', offset: '5px' }"
-      ><Icon icon="collections"
-    /></nuxt-link>
-    <nuxt-link
-      to="/palettes"
       v-tooltip.right="{ content: 'palettes', offset: '5px' }"
       ><Icon icon="palettes"
     /></nuxt-link>
+
+    
   </nav>
 </template>
 <style lang="scss">

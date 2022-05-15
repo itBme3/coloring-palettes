@@ -1,8 +1,7 @@
-import { generateCollectionOrPaletteName } from '~/utils/colorCollections';
+import { generatePaletteName } from '~/utils/palettes';
 import { v4 as uuidv4 } from 'uuid';
 import { objectsAreTheSame, handleize } from '~/utils/funcs';
 import {
-  initialCollections,
   initialPalettes,
   defaultPaletteColors,
 } from '~/utils/defaults';
@@ -11,37 +10,14 @@ import chroma from 'chroma-js'
 
 export const state = () => ({
     stored: {
-      collections: [],
       palettes: [],
     }
 });
 
 export const mutations = {
-  setCollections (state, collections) {
-    console.log({ collections })
-    state.stored = Object.assign({}, state.stored, {...state.stored, collections});
-  },
 
   setPalettes(state, palettes) {
     state.stored = Object.assign({}, state.stored, {...state.stored, palettes});
-  },
-
-  
-
-  newCollection(state, params) {
-    const { palettes = [], name = `New Collection` } = params || {};
-    if (!state.stored.collections?.length) {
-      state.stored.collections = initialCollections;
-    }
-    const collections = [{
-      palettes,
-      createdAt: Date.now(),
-      id: uuidv4(),
-      ...generateCollectionOrPaletteName(state.stored.collections, name),
-    },
-      ...state.stored.collections
-    ];
-    state.stored = Object.assign({}, state.stored, {...state.stored, collections});
   },
 
   newPalette(state, params) {
@@ -53,7 +29,7 @@ export const mutations = {
       colors,
       createdAt: Date.now(),
       id,
-      ...generateCollectionOrPaletteName(state.stored.palettes, name, handle),
+      ...generatePaletteName(state.stored.palettes, name, handle),
     });
   },
 
@@ -94,43 +70,6 @@ export const mutations = {
 };
 
 export const actions = {
-  updateCollection({ state, commit }, params) {
-    const {
-      collection = {},
-      merge = false,
-    } = params || {};
-    const currentCollection = this.getters.storedCollections?.filter(
-      (c) => c.id === collection.id
-    )[0];
-    if (!collection.id) {
-      return console.error('collection.id not provided');
-    }
-    if (!currentCollection) {
-      return console.error(
-        `current collection not found w/ id "${collection.id}" `
-      );
-    }
-    const data = merge
-      ? { ...currentCollection, ...collection }
-      : { ...collection, id: collection.id };
-    const collections = this.getters.storedCollections.reduce((acc, c) => {
-      if (c.id === collection.id) {
-        return [...acc, data];
-      }
-      return [...acc, c];
-    }, []);
-    commit('setCollections', collections);
-  },
-
-  deleteCollection({ state, commit }, id) {
-    const current = this.getters.storedCollections?.length
-      ? this.getters.storedCollections
-      : initialCollections;
-    commit(
-      'setCollections',
-      current.filter((c) => c.id !== id)
-    );
-  },
 
   updatePalette({  commit }, params) {
     const {
@@ -183,36 +122,13 @@ export const actions = {
     });
   },
 
-  addPaletteToCollection({ state, commit }, params) {
-    const { paletteId, collectionId } = params;
-    const collections = JSON.parse(JSON.stringify(this.getters.storedCollections || []));
-    const palettes = collections?.filter((c) => c.id === collectionId)[0] || [];
-    if (palettes?.includes(paletteId)) {
-      return;
-    }
-    palettes.unshift(paletteId);
-    commit('setPalettesOnCollection', { collectionId: collection.id, palettes });
-  },
-
-  duplicateCollection ({ commit }, params) {
-    const { collection = null } = params;
-    if (!collection) {
-      return alert(`${JSON.stringify(collection)} is not accepted collection`)
-    }
-    const d = new Date();
-    let { name = `${collection.name} (${d.toLocaleDateString(d).split('/').join('-')} ${d.toLocaleTimeString().split(' ').join('')}` } = params;
-    const nameAndHandle = generateCollectionOrPaletteName(this.getters.storedCollections, name, handleize(name));
-    commit('newCollection', { ...collection, ...nameAndHandle, id: uuidv4() })
-    window.open(`/collections/${nameAndHandle.handle}`, '_blank')
-  },
-
   duplicatePalette ({ commit, dispatch }, palette) {
     if (!palette) {
       return alert(`${JSON.stringify(palette)} is not accepted palette`)
     }
     const d = new Date();
     let name = `${palette.name} (${d.toLocaleDateString(d).split('/').join('-')} ${d.toLocaleTimeString().split(' ').join('')}`;
-    const nameAndHandle = generateCollectionOrPaletteName(this.getters.storedPalettes, name, handleize(name));
+    const nameAndHandle = generatePaletteName(this.getters.storedPalettes, name, handleize(name));
     const newPaletteId = uuidv4();
     const palettes = this.getters.storedPalettes.reduce((acc, p) => {
       if (p.id === palette.id) {
@@ -221,14 +137,11 @@ export const actions = {
       return [...acc, p]
     }, []);
     commit('setPalettes', palettes);
-    const collection = this.getters.storedCollections.filter(c => c.palettes.filter(p => p === palette.id).length)[0];
-    if (!collection) { return }
-    dispatch('updateCollection', {collection: { ...collection, palettes: [newPaletteId, ...collection.palettes] }});
     if (window.location.pathname.split('/')[1] === 'palettes' && window.location.pathname.split('/').length > 2) {
       window.open(`/palettes/${nameAndHandle.handle}`, '_blank');
     }
-    if(window.location.pathname.split('/')[1] === 'collections' && window.location.pathname.split('/').length > 3) {
-      window.open(`/collections/${collection.id}/${nameAndHandle.handle}`, '_blank');
+    if(window.location.pathname.split('/')[1] === 'palettes' && window.location.pathname.split('/').length > 3) {
+      window.open(`/palettes/${nameAndHandle.handle}`, '_blank');
     }
   },
 
@@ -268,20 +181,6 @@ export const actions = {
     commit('setPalettes', palettes)
   },
 
-  movePalette ({ dispatch }, params) {
-    const { palette, collectionId } = params;
-    if (!palette) {
-      return alert(`${JSON.stringify(palette)} is not accepted palette`)
-    }
-    if (!collectionId || !collection) {
-      return alert(`"${JSON.stringify(collectionId)}" is not a valid collectionId`)
-    }
-    const collection = this.getters.storedPalettes.filter(p => p.id === collectionId)[0] || null
-    dispatch('deletePalette', palette);
-    asyncDelay(50).then(() => dispatch('updateCollection', {
-      ...collection, palettes: [palette.id, ...collection.palettes]
-    }))
-  },
 
   moveColor ({ dispatch }, params) {
     const { color, paletteId } = params;
@@ -335,11 +234,6 @@ export const getters = {
     const palette =
       state?.stored?.palettes?.filter((p) => p.id === state?.palette)[0] || null;
     return palette?.colors || [];
-  },
-  storedCollections (state) {
-    return state?.stored?.collections?.length
-      ? state.stored.collections
-      : initialCollections;
   },
   storedPalettes(state) {
     return state?.stored?.palettes?.length

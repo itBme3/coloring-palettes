@@ -25,7 +25,7 @@
             }">
 
             <button 
-              v-for="viewing in ['custom', 'palettes', 'collections']"
+              v-for="viewing in ['custom', 'palettes']"
               :key="viewing"
               class="button w-full group"
               :class="{
@@ -35,7 +35,7 @@
               v-tooltip.top="view === 'default' ? undefined : viewing"
               @click="() => {
                 view = viewing;
-                viewing === 'palettes' ? palette = null : viewing === 'collections' ? collection = null : ''
+                viewing === 'palettes' ? palette = null : ''
                 }"
               >
               <Icon class="my-auto mx-0" :icon="viewing" />
@@ -86,29 +86,6 @@
               class="mt-6 hover:scale-100 border-0 p-2 hover:bg-transparent"
             />
           </template>
-          
-          <template v-if="view === 'collections'">
-            <SelectCollection 
-              v-if="!collection"
-              @select="e => {selectedCollectionId = e.id; view= 'collections'}" />
-            <div v-else class="select-palette flex flex-col space-y-2 p-2 pt-4">
-              <ColorPaletteGridItem
-                v-for="palette in collection.palettes"
-                :key="palette"
-                :palette-id="palette"
-                :link="false"
-                :actions="false"
-                swatch-style="simple"
-                :swatch-clickable="true"
-                @click="e => {
-                  selectedPaletteId = palette;
-                  view = 'palettes'
-                }"
-                @color="e => emitSelection(e)"
-                class="mt-6 border-0"
-              />
-            </div>
-          </template>
       
       </Transition>
     </div>
@@ -125,10 +102,6 @@ import { v4 as uuidv4 } from 'uuid';
         type: String,
         default: null
       },
-      collectionId: {
-        type: String,
-        default: null
-      },
       custom: {
         type: Boolean,
         default: false
@@ -142,20 +115,16 @@ import { v4 as uuidv4 } from 'uuid';
       return {
         customColor: 'cyan',
         selectedPaletteId: this.paletteId,
-        selectedCollectionId: this.collectionId,
         view: this.custom 
           ? 'custom'
           : this.paletteId
             ? 'palettes'
-            : this.collectionId 
-              ? 'collections'
               : 'default'
       }
     },
     computed: {
       ...mapGetters({
         palettes: 'storedPalettes',
-        collections: 'storedCollections'
       }),
       palette: {
         get(){
@@ -163,14 +132,6 @@ import { v4 as uuidv4 } from 'uuid';
         },
         set(id) {
           this.selectedPaletteId = id
-        }
-      },
-      collection: {
-        get() {
-          return this.collections.filter(p => p.id === this.selectedCollectionId)[0] || null
-        },
-        set(id) {
-          this.selectedCollectionId = id
         }
       }
 
@@ -203,7 +164,7 @@ import { v4 as uuidv4 } from 'uuid';
       @apply mb-3 opacity-50;
     }
   }
-  .select-palette, .select-collection {
+  .select-palette {
     .grid-item {
       @apply border-shade-40 p-4 hover:bg-opacity-20 shadow-lg cursor-pointer;
     }
