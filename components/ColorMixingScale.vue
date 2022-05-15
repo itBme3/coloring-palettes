@@ -10,8 +10,18 @@
               :animation-delay="0"
               :update-color-swatch-click="false"
               class="mb-2 mr-2"
-              @click="(e) => $emit('selectedColor', color)"
-            />
+              :class="{
+                'hover:scale-100 cursor-default': paletteColorValues.includes(color.value)
+              }"
+              @click="(e) => paletteColorValues.includes(e.value) ? '' : $emit('selectedColor', color)"
+            >
+            <Transition name="scale-fade-pop">
+              <Icon v-if="paletteColorValues.includes(color.value)" 
+                icon="check"
+                class="absolute right-1 top-0 opacity-70 scale-75 block"
+              />
+            </Transition>
+          </ColorSwatch>
         </div>
       </ColorMixingResultsWrap>
   </div>
@@ -48,11 +58,11 @@ export default {
 
   watch: {
     selectedColors() {
-      // console.log(this.selectedColors)
       if(!this.selectedColors?.length) { return }
       this.scaleColors();
     },
     steps() {
+      if(!this.selectedColors?.length) { return }
       this.scaleColors();
     },
     colors(val) {
@@ -62,7 +72,11 @@ export default {
       this.selectedColors = val;
     },
   },
-
+  computed: {
+    paletteColorValues() {
+      return this.palette && Array.isArray(this.palette.colors) ? this.palette.colors.map(c => c.value) : []
+    }
+  },
   methods: {
     scaleColors() {
       if (!Array.isArray(this.selectedColors)) {

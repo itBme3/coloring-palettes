@@ -1,12 +1,13 @@
 import { generateCollectionOrPaletteName } from '~/utils/colorCollections';
 import { v4 as uuidv4 } from 'uuid';
-import { objectsAreTheSame } from '~/utils/funcs';
+import { objectsAreTheSame, handleize } from '~/utils/funcs';
 import {
   initialCollections,
   initialPalettes,
   defaultPaletteColors,
 } from '~/utils/defaults';
 import { asyncDelay } from '../utils/funcs';
+import chroma from 'chroma-js'
 
 export const state = () => ({
     stored: {
@@ -16,7 +17,8 @@ export const state = () => ({
 });
 
 export const mutations = {
-  setCollections(state, collections) {
+  setCollections (state, collections) {
+    console.log({ collections })
     state.stored = Object.assign({}, state.stored, {...state.stored, collections});
   },
 
@@ -95,25 +97,24 @@ export const actions = {
   updateCollection({ state, commit }, params) {
     const {
       collection = {},
-      collectionId = params?.collection?.id || null,
       merge = false,
     } = params || {};
-    const currentCollection = state.stored.collections?.filter(
-      (c) => c.id === collectionId
+    const currentCollection = this.getters.storedCollections?.filter(
+      (c) => c.id === collection.id
     )[0];
-    if (!collectionId) {
-      return console.error('collectionId not provided');
+    if (!collection.id) {
+      return console.error('collection.id not provided');
     }
     if (!currentCollection) {
       return console.error(
-        `current collection not found w/ id "${collectionId}" `
+        `current collection not found w/ id "${collection.id}" `
       );
     }
     const data = merge
       ? { ...currentCollection, ...collection }
-      : { ...collection, id: collectionId };
-    const collections = state.stored.collections.reduce((acc, c) => {
-      if (c.id === collectionId) {
+      : { ...collection, id: collection.id };
+    const collections = this.getters.storedCollections.reduce((acc, c) => {
+      if (c.id === collection.id) {
         return [...acc, data];
       }
       return [...acc, c];
@@ -122,8 +123,8 @@ export const actions = {
   },
 
   deleteCollection({ state, commit }, id) {
-    const current = state.stored.collections?.length
-      ? state.stored.collections
+    const current = this.getters.storedCollections?.length
+      ? this.getters.storedCollections
       : initialCollections;
     commit(
       'setCollections',
@@ -131,25 +132,24 @@ export const actions = {
     );
   },
 
-  updatePalette({ state, commit }, params) {
+  updatePalette({  commit }, params) {
     const {
       palette = {},
-      paletteId = params?.palette?.id || null,
       merge = false,
     } = params || {};
     const storedPalettes = this.getters?.storedPalettes || [];
-    const currentPalette = storedPalettes?.filter((c) => c.id === paletteId)[0];
-    if (!paletteId) {
-      return console.error('paletteId not provided');
+    const currentPalette = storedPalettes?.filter((c) => c.id === palette.id)[0];
+    if (!palette.id) {
+      return console.error('palette.id not provided');
     }
     if (!currentPalette) {
-      return console.error(`current palette not found w/ id "${paletteId}" `);
+      return console.error(`current palette not found w/ id "${palette.id}" `);
     }
     const data = merge
       ? { ...currentPalette, ...palette }
-      : { ...palette, id: paletteId };
+      : { ...palette, id: palette.id };
     const palettes = storedPalettes.reduce((acc, c) => {
-      if (c.id === paletteId) {
+      if (c.id === palette.id) {
         return [...acc, data];
       }
       return [...acc, c];
@@ -157,7 +157,7 @@ export const actions = {
     commit('setPalettes', palettes);
   },
 
-  deletePalette({ state, commit }, id) {
+  deletePalette({ state, commit }, {id}) {
     const current = state?.stored?.palettes?.length ? state?.stored?.palettes : initialPalettes;
     commit(
       'setPalettes',
@@ -165,18 +165,19 @@ export const actions = {
     );
   },
 
-  addColorToPalette({ state, commit, dispatch }, params) {
+  addColorToPalette({ dispatch }, params) {
     const { paletteId, color } = params;
     const palette = JSON.parse(
       JSON.stringify(
-        this.getters.storedPalettes?.filter((c) => c.id === paletteId)[0]
+        this.getters.storedPalettes?.filter((p) => p.id === paletteId)[0]
       )
     );
+  console.log({palette})
     if (!palette) {
+      return;
     }
     palette.colors.unshift({ ...color, createdAt: Date.now() });
     dispatch('updatePalette', {
-      paletteId: palette.id,
       palette,
       merge: false,
     });
@@ -184,7 +185,7 @@ export const actions = {
 
   addPaletteToCollection({ state, commit }, params) {
     const { paletteId, collectionId } = params;
-    const collections = JSON.parse(JSON.stringify(state.stored.collections || []));
+    const collections = JSON.parse(JSON.stringify(this.getters.storedCollections || []));
     const palettes = collections?.filter((c) => c.id === collectionId)[0] || [];
     if (palettes?.includes(paletteId)) {
       return;
@@ -205,44 +206,55 @@ export const actions = {
     window.open(`/collections/${nameAndHandle.handle}`, '_blank')
   },
 
-  duplicatePalette ({ commit }, params) {
-    const { palette = null, collectionId = null } = params;
+  duplicatePalette ({ commit, dispatch }, palette) {
     if (!palette) {
       return alert(`${JSON.stringify(palette)} is not accepted palette`)
     }
     const d = new Date();
-    let { name = `${palette.name} (${d.toLocaleDateString(d).split('/').join('-')} ${d.toLocaleTimeString().split(' ').join('')}` } = params;
+    let name = `${palette.name} (${d.toLocaleDateString(d).split('/').join('-')} ${d.toLocaleTimeString().split(' ').join('')}`;
     const nameAndHandle = generateCollectionOrPaletteName(this.getters.storedPalettes, name, handleize(name));
-    const newPaletteId = uuidv4()
-    commit('newPalette', { ...palette, ...nameAndHandle, id: newPaletteId })
-    if (collectionId) {
-      const collection = this.getters.storedCollections.filter(c => c.id === collectionId)[0];
-      if (!collection) { return }
-      commit('updateCollection', { ...collection, palettes: [newPaletteId, ...collection.palettes] });
+    const newPaletteId = uuidv4();
+    const palettes = this.getters.storedPalettes.reduce((acc, p) => {
+      if (p.id === palette.id) {
+        return [...acc, { ...palette, colors: palette.colors.map(c => { return { ...c, id: uuidv4() } }), ...nameAndHandle, id: newPaletteId }, p]
+      }
+      return [...acc, p]
+    }, []);
+    commit('setPalettes', palettes);
+    const collection = this.getters.storedCollections.filter(c => c.palettes.filter(p => p === palette.id).length)[0];
+    if (!collection) { return }
+    dispatch('updateCollection', {collection: { ...collection, palettes: [newPaletteId, ...collection.palettes] }});
+    if (window.location.pathname.split('/')[1] === 'palettes' && window.location.pathname.split('/').length > 2) {
+      window.open(`/palettes/${nameAndHandle.handle}`, '_blank');
     }
-    window.open(`/palettes/${nameAndHandle.handle}`, '_blank')
+    if(window.location.pathname.split('/')[1] === 'collections' && window.location.pathname.split('/').length > 3) {
+      window.open(`/collections/${collection.id}/${nameAndHandle.handle}`, '_blank');
+    }
   },
 
-  duplicateColor ({ commit }, params) {
-    const { color = null, paletteId = null } = params;
+  duplicateColor ({ dispatch }, color) {
     if (!color) {
       return alert(`${JSON.stringify(color)} is not accepted color`)
     }
-    const palette = this.getters.storedPalettes.filter(p => p.id === paletteId)[0] || null
-    if (!paletteId || !palette) {
-      return alert(`"${JSON.stringify(paletteId)}" is not a valid paletteId`)
+    const palette = this.getters.storedPalettes.filter(p => p.colors.filter(c => c.id === color.id).length)[0] || null
+    if (!palette) {
+      return alert(`could not find palette with color: ${JSON.stringify(color)}`)
     }
     const value = color.value || 'cyan';
     const { name = value } = color;
-    commit('updatePalette', { ...palette, colors: [{ name, value, id: uuidv4() }, ...(palette.colors || [])] })
-    if(!this.$route.params.palette || this.$route.params.palette)
-    window.open(`/palettes/${nameAndHandle.handle}`, '_blank')
+    const colors = palette.colors.reduce((acc, c) => {
+      if (c.id === color.id) {
+        return [...acc, c, { ...c, value, name, id: uuidv4() }]
+      }
+      return [...acc, c]
+    }, [])
+    dispatch('updatePalette', { palette: { ...palette, colors } })
   },
 
   
 
   updateColor ({ commit }, color) {
-    if (color.name.indexOf('#') === 0 && chroma.valid(color.name)) {
+    if (!color.name || color.name.indexOf('#') === 0 && chroma.valid(color.name)) {
       color.name = color.value
     }
     const palettes = JSON.parse(JSON.stringify(
@@ -256,7 +268,7 @@ export const actions = {
     commit('setPalettes', palettes)
   },
 
-  movePalette ({ dispatch, commit }, params) {
+  movePalette ({ dispatch }, params) {
     const { palette, collectionId } = params;
     if (!palette) {
       return alert(`${JSON.stringify(palette)} is not accepted palette`)
@@ -266,24 +278,29 @@ export const actions = {
     }
     const collection = this.getters.storedPalettes.filter(p => p.id === collectionId)[0] || null
     dispatch('deletePalette', palette);
-    asyncDelay(50).then(() => commit('updatePalette', {
+    asyncDelay(50).then(() => dispatch('updateCollection', {
       ...collection, palettes: [palette.id, ...collection.palettes]
     }))
   },
 
-  moveColor ({ dispatch, commit }, params) {
+  moveColor ({ dispatch }, params) {
     const { color, paletteId } = params;
     if (!color) {
       return alert(`${JSON.stringify(color)} is not accepted color`)
     }
+    const palette = this.getters.storedPalettes.filter(p => p.id === paletteId)[0] || null
     if (!paletteId || !palette) {
       return alert(`"${JSON.stringify(paletteId)}" is not a valid paletteId`)
     }
-    const palette = this.getters.storedPalettes.filter(p => p.id === paletteId)[0] || null
     dispatch('deleteColor', color);
-    asyncDelay(50).then(() => commit('updatePalette', {
-      ...palette, colors: [color, ...palette.colors]
-    }))
+    asyncDelay(50).then(() => {
+      dispatch('updatePalette', {
+        palette: {
+          ...palette, colors: [color, ...palette.colors]
+        }
+      });
+      this.$router.push(`/palettes/${palette.id}`)
+    })
   },
 
   deleteColor ({ commit }, color) {

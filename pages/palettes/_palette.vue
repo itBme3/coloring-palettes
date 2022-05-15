@@ -1,9 +1,9 @@
 <template>
-  <client-only>
+  <keep-alive>
     <ColorPalette
       v-if="$route.params.palette"
       class="page"
       :palette-id="$route.params.palette"
     />
-  </client-only>
+  </keep-alive>
 </template>

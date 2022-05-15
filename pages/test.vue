@@ -1,60 +1,29 @@
 <template>
-  <div class="flex flex-col items-center content-center w-[calc(100%)] p-12 mx-auto space-y-8">
-    <div v-if="picked && picked.value" class="w-auto py-3 px-2" :style="{backgroundColor: picked.value }">{{ picked.value }}</div>
-    <draggable
-          tag="div"
-          class="selected-colors flex flex-col space-y-2 my-auto"
-        >
-    <!-- <div class="flex flex-col space-y-2 w-full"> -->
-      <ColorSwatch
-        v-for="(color, i) in colors"
-        :key="0 + color + i"
-        :actions="true"
-        :draggable="true"
-        swatch-style="list-item"
-        @updateColor="(e) => picked = e"
-        class="group"
-        ref="colorSwatch"
-      >
-        <Icon
-          :key="'drag-handle'"
-          class="drag-handle cursor-move text-base
-            absolute left-3 top-1/2 -translate-y-1/2 opacity-0 
-            group-hover:opacity-30 hover:opacity-60 text-shade-90"
-          icon="grip"
-        />
-      </ColorSwatch>
-    <!-- </div> -->
-    </draggable>
-    <div class="flex flex-row space-x-2">
-      <ColorSwatch
-        v-for="(color, i) in colors"
-        :key="1 + color + i"
-        :actions="true"
-        swatch-style="tile"
-        @updateColor="(e) => picked = e"
-      />
-    </div>
-    <div class="flex flex-row space-x-2">
-      <ColorSwatch
-        v-for="(color, i) in colors"
-        :key="2 + color + i"
-        swatch-style="simple"
-        @updateColor="(e) => picked = e"
-      />
-    </div>
+  <div class="flex flex-col items-center content-center w-[calc(100%)] p-12 pr-0 mx-auto space-y-8 h-screen">
+    <ColorSwatch
+      :palette="palettes[0]"
+      :color="palettes[0].colors[0]"
+      swatch-style="list-item"
+      :actions="true"
+    />
 
+  <ItemActions :item="palettes[0].colors[0]" />
+      <!-- <Popover> -->
+        <!-- <button @click="$refs.popActions.show()">test</button>
+        <PopoverActions ref="popActions" action="color" :item="palettes[0].colors[0]" /> -->
+      <!-- </Popover> -->
 
-    <Popover ref="popover" class="m-auto">
-      <template #target>
+    <Popover :close-on-click="false" ref="popover" class="m-auto" max-width="600px" :classes="{container: 'p-6 w-[600px]'}">
+      <template #trigger>
         <button class="button">
           click me
         </button>
       </template>
-      <div class="h-64 flex items-center content-center w-4xl">
+      <div class="h-[200vh] flex items-center content-center w-4xl">
         <span>that worked 🙌</span>
       </div>
     </Popover>
+
   </div>
 </template>
 
@@ -62,10 +31,14 @@
   import Vue from 'vue'
 import { mapGetters } from 'vuex';
 import draggable from 'vuedraggable';
+import PopoverActions from '../components/PopoverActions.vue';
+import ColorPaletteGridItem from '../components/ColorPaletteGridItem.vue';
   export default Vue.extend({
     components: {
-      draggable
-    },
+    draggable,
+    PopoverActions,
+    ColorPaletteGridItem
+},
     data() {
         return { picked: null };
     },
@@ -80,11 +53,13 @@ import draggable from 'vuedraggable';
     methods: {
         selectColor(e) {
             console.log(this.$refs.popoverElem);
+        },
+        log(e) {
+          console.log(e)
         }
     },
 })
 </script>
 
-<style scoped>
-
+<style>
 </style>

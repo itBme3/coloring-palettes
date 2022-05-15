@@ -1,70 +1,90 @@
 .scale-enter-active {
   animation: scale 0.3s;
+  // animation-fill-mode: both;
 }
 .scale-fade-enter-active {
   animation: scale-fade 0.3s;
+  // animation-fill-mode: both;
 }
 .scale-fade-pop-enter-active {
   animation: scale-fade-pop 0.2s;
+  // animation-fill-mode: both;
 }
 
 .scale-leave-active {
   animation: scale 0.2s reverse;
+  // animation-fill-mode: both;
 }
 .scale-fade-leave-active {
   animation: scale-fade 0.2s reverse;
+  // animation-fill-mode: both;
 }
 .scale-fade-pop-leave-active {
   animation: scale-fade-pop 0.2s reverse;
+  // animation-fill-mode: both;
 }
 
 .up-fade-enter-active,
 .up-up-fade-enter-active {
   animation: up-fade 0.3s;
+  // animation-fill-mode: both;
 }
 .up-fade-leave-active {
   animation: up-fade 0.2s reverse;
+  // animation-fill-mode: both;
 }
 .up-up-fade-leave-active {
   animation: down-fade 0.2s reverse;
+  // animation-fill-mode: both;
 }
 
 .down-fade-enter-active,
 .down-down-fade-enter-active {
   animation: down-fade 0.3s;
+  // animation-fill-mode: both;
 }
 .down-fade-leave-active {
   animation: down-fade 0.2s reverse;
+  // animation-fill-mode: both;
 }
 .down-down-fade-leave-active {
   animation: up-fade 0.2s reverse;
+  // animation-fill-mode: both;
 }
 .left-fade-enter-active,
 .left-left-fade-enter-active {
   animation: left-fade 0.3s;
+  // animation-fill-mode: both;
 }
 .left-fade-leave-active {
   animation: left-fade 0.2s reverse;
+  // animation-fill-mode: both;
 }
 .left-left-fade-leave-active {
   animation: right-fade 0.2s reverse;
+  // animation-fill-mode: both;
 }
 
 .right-fade-enter-active,
 .right-right-fade-enter-active {
   animation: right-fade 0.3s;
+  // animation-fill-mode: both;
 }
 .right-fade-leave-active {
   animation: right-fade 0.2s reverse;
+  // animation-fill-mode: both;
 }
 .right-right-fade-leave-active {
   animation: left-fade 0.2s reverse;
+  // animation-fill-mode: both;
 }
 .wiggle {
   animation: wiggle 1s alternate 0.5s ease-in-out;
+  // animation-fill-mode: both;
 }
 .just-added {
   animation: wiggle 1.5s alternate 0.3s ease-out;
+  // animation-fill-mode: both;
 }
 
 @keyframes scale {

@@ -3,45 +3,45 @@
     v-if="palette && palette.name"
     class="color-palette ml-2 mr-auto w-full relative inline-block"
   >
-    <aside ref="paletteNav" class="sticky float-left top-2 w-[160px] rounded-md border border-shade-30 p-4">
-      <div class="toggle-buttons flex flex-col space-y-2 mb-6 relative z-9">
-          <button
-            v-for="editView in ['palette', 'mixing']"
-            :key="editView"
-            @click="view = editView"
-            class="hover:text-white tracking-widest uppercase font-black border-2 border-t-0 border-x-0 border-transparent text-lg text-shade-180 bg-shade-20 bg-opacity-40"
-            :class="{
-              'order-first': editView === 'palette',
-              'border-white text-white rounded-b-none text-2xl bg-transparent cursor-default hover:bg-transparent hover:scale-100': view === editView,
-            }"
-          >
-            {{ editView }}
-          </button>
-          <ColorPaletteActions
-            v-if="view === 'palette'"
-            class="order-first"
-            :palette="palette"
-            @rename="focusInput"
-          />
-      </div>
-      <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
-        <div v-if="view === 'mixing'" class="flex flex-col space-y-2" >
-            <button
-            v-for="mixView in ['scale', 'shade', 'random']"
-              :key="mixView"
-              class="hover:bg-white hover:text-shade-20 text-sm outline w-full"
-              :disabled="mixView === mixingView"
-              :class="{
-                'active': mixView === mixingView,
-              }"
-              @click="mixingView = mixView"
-            >
-              {{ mixView }}
-            </button>
-        </div>
-      </transition>
-    </aside>
+      <aside ref="paletteNav" class="sticky float-left top-2 w-[160px] rounded-md border border-shade-30 p-4">
 
+        <div class="toggle-buttons flex flex-col space-y-2 mb-6 relative z-9">
+            <button
+              v-for="editView in ['palette', 'mixing']"
+              :key="editView"
+              @click="toggleView(editView)"
+              class="hover:text-white tracking-widest uppercase font-black border-2 border-t-0 border-x-0 border-transparent text-lg text-shade-180 bg-shade-20 bg-opacity-40"
+              :class="{
+                'order-first': editView === 'palette',
+                'border-white text-white rounded-b-none text-2xl bg-transparent cursor-default hover:bg-transparent hover:scale-100': view === editView,
+              }"
+            >
+              {{ editView }}
+            </button>
+            <ColorPaletteActions
+              v-if="view === 'palette'"
+              class="order-first"
+              :palette="palette"
+              @rename="focusInput"
+            />
+        </div>
+        <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
+          <div v-if="view === 'mixing'" class="flex flex-col space-y-2" >
+              <button
+              v-for="mixView in ['scale', 'shade', 'random']"
+                :key="mixView"
+                class="hover:bg-white hover:text-shade-20 text-sm outline w-full"
+                :disabled="mixView === mixingView"
+                :class="{
+                  'active': mixView === mixingView,
+                }"
+                @click="mixingView = mixView"
+              >
+                {{ mixView }}
+              </button>
+          </div>
+        </transition>
+      </aside>
     <div class="ml-auto" :style="{
           width: $refs.paletteNav && $refs.paletteNav.offsetWidth
             ? 'calc(100% - ' + ($refs.paletteNav.offsetWidth) + 'px - 2rem)'
@@ -90,7 +90,7 @@ export default {
     };
   },
   mounted() {
-    this.view = 'mixing';
+    this.view = this.$route.hash === '#mixing' ? 'mixing' : 'palette'
     this.mixingView = 'scale'
   },
   computed: {
@@ -104,12 +104,17 @@ export default {
     },
   },
   watch: {
-    palettedId(val) {
+    paletteId(val) {
       this.palette =
         this.storedPalettes?.filter((p) => p.id === val)[0] || null;
     },
-    view() {
-      this.setSidebarDetailsWidth();
+    view(val) {
+      setTimeout(() => {
+        this.setSidebarDetailsWidth();
+      }, 500)
+      // if(window.location.hash.length > 1) {
+      //   window.location.hash = val
+      // }
     },
   },
   methods: {
@@ -131,6 +136,10 @@ export default {
         palette: { ...this.palette, name: e.target.value },
       });
     }, 250),
+    toggleView(view) {
+      this.view = view; 
+      window.location.hash = view
+    }
   },
 };
 </script>

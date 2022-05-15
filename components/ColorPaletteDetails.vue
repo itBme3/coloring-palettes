@@ -39,35 +39,37 @@
       />
     </transition>
     <transition name="up-fade" :duration="{ enter: 500, leave: 100 }">
-      <draggable
-          v-if="view.includes('colors')"
-          v-model="colors"
-          tag="div"
-          class="color-palette-colors flex flex-col"
-          :class="{
-            'space-y-2': !isSidebar || !sidebarCollapsed,
-            'space-y-px': isSidebar && sidebarCollapsed,
-          }"
-          style="transition-delay: 0.2s !important"
-        >
-        <ColorSwatch
-          v-for="(color, i) in palette.colors"
-          :key="color.id"
-          :color="color"
-          :delay-show="0"
-          :class="{
-            'just-added delay-500': Date.now() - color.createdAt < 3000,
-          }"
-          :swatch-style="isSidebar && sidebarCollapsed ? 'simple' : 'list-item'"
-          :clickable="!sidebarCollapsed && isSidebar"
-          :actions="true"
-          :draggable="true"
-          @updateColor="e => $store.dispatch('updateColor', e)"
-        />
-        <div v-if="sidebarCollapsed && isSidebar"
-           class="absolute inset-0 z-9 cursor-pointer"
-           @click="sidebarCollapsed = false" />
-      </draggable>
+      <div class="colors-wrapper">
+        <draggable
+            v-if="view.includes('colors')"
+            v-model="colors"
+            tag="div"
+            class="color-palette-colors flex flex-col"
+            :class="{
+              'space-y-2': !isSidebar || !sidebarCollapsed,
+              'space-y-px': isSidebar && sidebarCollapsed,
+            }"
+            style="transition-delay: 0.2s !important"
+          >
+          <ColorSwatch
+            v-for="(color, i) in palette.colors"
+            :key="color.id"
+            :color="color"
+            :delay-show="0"
+            :class="{
+              'just-added delay-500': Date.now() - color.createdAt < 3000,
+            }"
+            :swatch-style="isSidebar && sidebarCollapsed ? 'simple' : 'list-item'"
+            :clickable="!sidebarCollapsed && isSidebar"
+            :actions="true"
+            :draggable="true"
+            @updateColor="e => $store.dispatch('updateColor', e)"
+          />
+          <div v-if="sidebarCollapsed && isSidebar"
+            class="absolute inset-0 z-9 cursor-pointer"
+            @click="sidebarCollapsed = false" />
+        </draggable>
+      </div>
     </transition>
   </div>
 </template>
@@ -101,7 +103,17 @@ export default Vue.extend({
     this.view.push('input');
     setTimeout(() => {
       this.view.push('colors');
+      if (this.isSidebar) {
+        this.$el.addEventListener('click', this.stopPropagationOnClick, {passive: true})
+        window.addEventListener('click', this.collapseSidebar, {passive: true})
+      }
     }, 200);
+  },
+  destroyed() {
+    try {
+      this.$el.removeEventListener('click', this.stopPropagationOnClick)
+      window.removeEventListener('click', this.collapseSidebar)
+    } catch {}
   },
   watch: {
     sidebarCollapsed(collapsed) {
@@ -140,6 +152,13 @@ export default Vue.extend({
     }, 100),
     updateColor(color, value) {
       this.$store.commit('updateColor', { ...color, value })
+    },
+    stopPropagationOnClick(e, force = false) {
+      this.$store.commit('window/setClick', e)
+      e.stopPropagation();
+    },
+    collapseSidebar() {
+      this.sidebarCollapsed = true
     }
   },
 })
@@ -149,6 +168,10 @@ export default Vue.extend({
   @apply bg-shade-35 right-1 transition-all ease-in-out top-1 fixed h-[calc(100vh-0.5rem)] w-[200px] p-4 rounded shadow-lg;
   input.title {
     @apply focus:ring-transparent focus:border-transparent focus:outline-0 ring-offset-transparent #{!important};
+  }
+  .colors-wrapper {
+    max-height: calc(100vh - 120px);
+    overflow-y: scroll;
   }
   .color-swatch {
     @apply h-8 rounded-sm #{!important};

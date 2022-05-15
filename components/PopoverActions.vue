@@ -1,101 +1,73 @@
 <template>
-  <Popover ref="popover"
-    :classes="classes">
 
-    <template v-if="action === 'rename'">
-      <input 
-        ref="nameInput"
-        v-model="itemName"
-      />
-    </template>
-
-    <template v-else-if="action === 'color'">
-      <ColorPicker
-        picker-type="spectrum"
-        :value="item.value"
-        @update="(e) => handleAction({ ...item, value: e })"
-      />
-    </template>
-
-    <template v-else-if="action === 'delete'">
-      <slot><h4 class="text-center pt-4 pb-5 px-5">Confirm</h4></slot>
-      <slot name="actions">
-        <button
-          class="bg-red-500 hover:bg-red-400 text-red-900"
-          @click="handleAction">Delete</button>
-      </slot>
-    </template>
-    
-    <template v-else-if="action === 'copy'">
-      <div
-      v-if="view === 'copying-colors'"
-      class="ml-auto flex"
-      :class="{
-        'flex-col space-y-2': isPalettePage,
-        'space-x-2 content-end items-center': !isPalettePage,
-      }"
-    >
-      <label
-        class="flex items-center content-start cursor-pointer"
-        :class="{
-          'order-last ml-3': !isPalettePage,
-        }"
-      >
-        <Icon
-          :icon="copyColorsIncludeNames ? 'square-check' : 'square'"
-          :class="{
-            'text-shade-60': !copyColorsIncludeNames,
-            'text-green-400': copyColorsIncludeNames,
+<div class="popover-actions"
+  v-if="item">
+  <component
+    :is="collapsedActions ? 'Popover' : 'div'"
+    :close-on-click="true">
+    <template #trigger v-if="collapsedActions">
+      <button 
+        class="menu-toggle absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 m-0 bg-opacity-10 text-shade-220 w-6 h-6 flex content-center items-center text-center p-0 text-opacity-50 hover:text-opacity-70"
+        :style="{color: textColor }">
+        <Icon 
+          class="m-auto"
+          :icon="collapseIcon"
+          :style="{
+            color: textColor
           }"
         />
-        <input
-          class="hidden"
-          type="checkbox"
-          name="copyColors-names"
-          v-model="copyColorsIncludeNames"
-        />
-        <small class="inline-block text-xs mx-2">include names</small>
-      </label>
-      <button
-        v-for="action in copyColorActions"
-        :key="action"
-        @click="copyColors(action)"
-        class="px-2 py-1 text-sm"
-      >
-        {{ action }}
       </button>
+    </template>
+
+    <div 
+      class="toggle-actions flex mr-2"
+      key="toggleActions"
+      :class="{
+        'flex-col content-start items-stretch space-y-1 mx-0': collapsedActions,
+        'flex-row content-end items-center space-x-1 ml-auto mr-0 opacity-0 scale-50 group-hover:scale-100 group-hover:opacity-100': !collapsedActions,
+      }">
+        <button
+          v-for="action in activeActions"
+          v-tooltip="!collapsedActions ? {content: action, position: 'top', offset: 6, boundariesElement: $el.parentNode} : undefined"
+          class="icon-button toggle-action-button items-center flex group"
+          :class="{
+            'content-center': !collapsedActions,
+            'content-end py-2 w-full': collapsedActions,
+          }"
+          @click="(e) => handleAction(action)"
+        >
+          <small class="text-xs text-gray-400 font-normal mr-auto pr-2" v-if="collapsedActions">{{action}}</small>
+          <Icon
+            class="opacity-50 group-hover:opacity-100"
+            :icon="Array.isArray(action) ? action[1] : action"
+          />
+        </button>
     </div>
+  </component>
+  <PopoverAction
+    v-for="action in activeActions" 
+    :key="action"
+    :ref="action + 'Popover'"
+    :item="item"
+    :action="action"
+    :input-el="$refs.nameInput"
+    :close-on-click="['delete'].includes(action)"
+    :text-color="textColor"
+    :max-width="action === 'move' ? '500px' : '300px' "
+    @color="(e) => action === 'color' ? $emit('color', e) : ''"
+    />
+</div>
 
-    <small
-      v-else-if="view === 'copied'"
-      class="rounded text-green-300 bg-shade-40 px-2 py-1 shadow-lg"
-    >
-      copied 👍
-    </small>
-    </template>
-    
-    <template v-else-if="action === 'move'">
-      <component 
-        :is="itemType === 'palette' ? 'SelectCollection' : 'SelectPalette'"
-        @select="e => handleAction(!!e && !!e.id ? e.id : null)"
-      />
-    </template>
-
-  </Popover>
 </template>
 
 <script>
-  import Vue from 'vue'
-import {capitalize, asyncDelay} from '~/utils/funcs'
+  import { capitalize } from '@vue/shared';
+import Vue from 'vue'
   export default Vue.extend({
     props: {
       item: {
         type: Object,
         default: () => {}
-      },
-      action: {
-        type: String,
-        default: ''
       },
       classes: {
         type: Object,
@@ -111,28 +83,31 @@ import {capitalize, asyncDelay} from '~/utils/funcs'
         type: HTMLElement,
         default: () => null
       },
-      onlyEmit: {
-        type: Boolean,
-        default: false
+      animationName: {
+          type: String,
+          default: "scale-fade",
       },
-      closeOnClick: {
+      textColor: {
+        type: String,
+        default: '#000000'
+      },
+      collapseIcon: {
+        type: String,
+        default: 'ellipsis'
+      },
+      collapsedActions: {
         type: Boolean,
-        default: false
+        default: true
       }
     },
     data: () => ({
       view: null
     }),
+    mounted() {
+      
+    },
     computed: {
-      isPalettePage() {
-        return (
-          (this.$route.path.split('/')[1] === 'palettes' &&
-            this.$route.params.id) ||
-          !!this.$route.params.palette
-        );
-      },
       itemType () {
-        
         return Object.keys(this.item).includes('palettes')
           ? 'collection'
           : Object.keys(this.item).includes('colors')
@@ -141,109 +116,39 @@ import {capitalize, asyncDelay} from '~/utils/funcs'
           ? 'color'
           : null
       },
-      itemTypeExists() {
-        return ['collection','palette', 'color'].includes(this.itemType)
-      },
-      itemName: {
-        get() {
-          return this.item?.name?.length ? this.item.name : this.item?.value?.length ? this.item.value : ''
-        },
-        set(name) {
-          if(!this.itemTypeExists) {return}
-          const actionName = `update${capitalize(this.itemType)}`;
-          this.$store.dispatch(actionName, {...this.item, name });
+      activeActions() {
+        const possibleActions = ["rename", "delete", "duplicate"];
+        switch (this.itemType) {
+          case 'collection':
+            return possibleActions
+          case 'palette':
+            return ['copyColors', ...possibleActions, 'move']
+          case 'color':
+            return ['color', 'copyColors', ...possibleActions, 'move']
+          default:
+            return [];
         }
       }
     },
     methods: {
-      show() {
-        try {
-          this.$refs.popover.show()
-        } catch {}
-      },
-      hide() {
-        try {
-          this.$refs.popover.hide()
-          this.view = null
-        } catch {}
-      },
-      handleView(view) {
-        if (this.view === view) { 
-          this.view = null;
-          return
-        }
-        this.view = view
-      },
-      handleAction(props = {}) {
-        if(!this.itemTypeExists) { return }
-        const params = {
-          [this.itemType]: ['color'].includes(this.action) ? props : this.item
-        }
-        const parentId = !!props ? typeof props === 'string' ? props : !!props.id ? props.id : null : null;
-        if(typeof parentId === 'string') {
-          params[`${this.itemType === 'palette' ? 'collectionId' : 'paletteId'}`] = parentId
-        }
-        if(!this.onlyEmit) {
-          switch (this.action) {
-            case 'delete':
-              asyncDelay(400).then(() => this.$store.dispatch(`delete${capitalize(this.itemType)}`, this.item))
-              break;
-            case 'duplicate':
-              this.$store.dispatch(`duplicate${capitalize(this.itemType)}`, params)
-              break;
-            case 'move':
-              if(this.itemType !== 'collection') {
-                this.$store.dispatch(`move${capitalize(this.itemType)}`, params)
-              }
-              break;
-            case 'copyColors':
-              this.copyColors(props)
-              break;
-            case 'rename':
-              if (this.inputEl && this.inputEl.select) {
-                this.inputEl.select()
-              } else {
-                this.$store.dispatch(`update${capitalize(this.itemType)}`, { ...this.item, name: props })
-              }
-              break;
-            case 'color':
-              this.$store.dispatch('updateColor', props)
-              break;
-            default:
-              break;
+      handleAction(action) {
+          if(action === 'duplicate') {
+            return this.$store.dispatch(`duplicate${capitalize(this.itemType)}`, this.item) 
           }
-        }
-
-        if(this.closeOnClick) {
-          this.hide();
-        }
-        this.$emit(this.action, params)
+          if(action === 'rename') {
+            if(this.inputEl && this.inputEl.select) {
+              return this.inputEl.select()
+            }
+            const nameInput = this.$parent.$el.querySelector('input[name="name-input"]')
+            if(nameInput && nameInput.select) {
+              return nameInput.select()
+            }
+          }
+          if (this.$refs[`${action}Popover`] && this.$refs[`${action}Popover`][0] && this.$refs[`${action}Popover`][0].show) {
+              this.$refs[`${action}Popover`][0].show();
+          }
+          // this.$emit(action, this.color.value);
       },
-      copyColors(action) {
-        const css = action.split('.')[0] === 'css';
-        const key = action.replace('css.', '');
-        this.$copyText(
-          (this.itemType === 'palette' ? this.item.colors : this.itemType === 'color' ? [this.item] : [])
-            .map((color) =>
-              css
-                ? this.copyColorsIncludeNames
-                  ? `${color.name}: ${chroma(color.value).css(key)}`
-                  : chroma(color.value).css(key)
-                : action === 'hex'
-                ? this.copyColorsIncludeNames
-                  ? `${color.name}: ${chroma(color.value)[key]()}`
-                  : chroma(color.value)[key]()
-                : this.copyColorsIncludeNames
-                ? `${color.name}: ${JSON.stringify(chroma(color.value)[key]())}`
-                : JSON.stringify(chroma(color.value)[key]())
-            )
-            .join('\n')
-        ).then(() => {
-          this.view = 'copied';
-          return this.asyncDelay(750)
-            .then(() => this.view = null)
-        });
-      }
     }
   })
 </script>

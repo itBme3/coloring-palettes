@@ -24,11 +24,19 @@
         />
       </div>
       <div class="flex items-center mt-2 relative">
+        <SelectColor
+          v-if="selectedColors.length < maxSelected"
+          @update="e => {
+            selectedColors.unshift(e)
+          }"
+          @color="e => selectedColors.unshift(e)"
+          :palette-id="palette.id"
+        />
         <draggable
           v-if="!['random'].includes(mixType)"
           v-model="selectedColors"
           tag="div"
-          class="selected-colors flex space-x-2 my-auto"
+          class="selected-colors flex space-x-2 my-auto ml-3"
         >
           <ColorSwatch
             v-for="(color, i) in selectedColors"
@@ -52,76 +60,12 @@
                 top-1
                 opacity-0
                 group-hover:opacity-40
-                text-black
               "
               icon="close"
               @click="selectedColors.splice(i, 1)"
             />
           </ColorSwatch>
         </draggable>
-
-        <!-- <Popover ref="popoverElem">
-          <template slot="trigger">
-            <button 
-              v-if="selectedColors.length < maxSelected"
-              class="add-color color-swatch ml-3 text-base bg-transparent">
-              <Icon class="m-auto" icon="add" />
-            </button>
-          </template>
-          <div class="max-w-lg mx-auto flex flex-col pt-1 pb-2">
-            <Transition name="down-fade">
-              <SelectColor 
-                @color="e => {
-                  selectedColors.push(e)
-                  $refs.popoverElem.hide()
-                }" 
-              />
-            </Transition>
-          </div>
-        </Popover> -->
-
-        <SelectColor
-          v-if="selectedColors.length < maxSelected"
-          @update="e => {
-            selectedColors.pop()
-            selectedColors.push(e)
-          }"
-          @color="e => selectedColors.push(e)"
-        />
-
-        <!-- <v-popover
-          v-if="selectedColors.length < maxSelected"
-          class="mr-auto"
-          :handle-resize="true"
-          popover-class="flex flex-col shadow-lg !-left-[50px] mt-10"
-          placement="right-start"
-          ref="popoverElem">
-            <div v-if="selectedColors.length < maxSelected"
-              class="add-color color-swatch ml-3 text-base">
-              <Icon class="m-auto" icon="add" />
-            </div>
-            <template slot="popover">
-              <div class="max-w-lg mx-auto flex flex-col pt-1 pb-2"
-                @click="resizePopover">
-                <button class="button ml-auto mr-0 mb-1 !py-1" v-close-popover><Icon icon="close" /></button>
-                <Transition name="down-fade">
-                  <SelectColor 
-                    @color="e => {
-                      color = e;
-                      $refs.popoverElem.hide()
-                    }" 
-                  />
-                </Transition>
-              </div>
-            </template>
-          </v-popover> -->
-        <!-- <PopoverActions 
-          v-if="editingColor"
-          :item="editingColor"
-          ref="colorPopover"
-          action="color"
-          :only-emit="true"
-        /> -->
       </div>
     </div>
   </div>

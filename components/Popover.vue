@@ -3,6 +3,11 @@
     <span class="popover-trigger">
       <slot name="trigger" />
     </span>
+    <Teleport v-if="showing" to="main">
+      <div class="overlay fixed inset-0">
+        overlay
+      </div>
+    </Teleport>
     <Teleport to=".site-container">
       <Transition
         name="scale-fade-pop">
@@ -15,8 +20,9 @@
           :style="{
             ...popoverPosition,
             animationFillMode: 'both',
-            maxWidth: maxWidth + ' !important'
+            maxWidth: maxWidth
           }">
+          
           <div class="popover-heading"
             :class="{
               ['' + classes.heading + '']: !!classes.heading
@@ -31,7 +37,7 @@
               </button>
             </slot>
           </div>
-          <div class="popover-body max-h-full overflow-y-scroll"
+          <div class="popover-body overflow-y-scroll"
             :class="{
               ['' + classes.body + '']: !!classes.body
             }">
@@ -79,7 +85,7 @@ import {asyncDelay} from '~/utils/funcs'
     },
     data() {
       return {
-        showing: false,
+        isShowing: false,
         triggerEl: null,
         popoverPosition: {
           top: 0,
@@ -87,41 +93,55 @@ import {asyncDelay} from '~/utils/funcs'
         }
       }
     },
+    computed: {
+      document() {
+        return document === undefined ? { body: {} } : document
+      },
+      showing: {
+        get() {
+          return this.isShowing;
+        },
+        set(val) {
+          console.log({val})
+          this.isShowing = val
+          if(!val) {
+            try {
+              this.$emit('exited');
+              this.$refs.containerEl.removeEventListener('click', this.stopPropagationOnClick)
+            } catch {}
+          } else {
+            function addClickListener(tried = 0) {
+              const maxTries = 10;
+              console.log(tried)
+              if(!this.$refs.containerEl || !this.$refs.containerEl.addEventListener) {
+                if(tried >= maxTries) {
+                  return
+                }
+                return asyncDelay(250).then(() => addClickListener(tried + 1))
+              }
+              console.log({this: this})
+              this.$refs.containerEl.addEventListener('click', this.stopPropagationOnClick, {passive: true})
+              this.setContainerPosition();
+            }
+            addClickListener = addClickListener.bind(this)
+            addClickListener()
+          }
+          
+        }
+      }
+    },
     watch: {
-      
       '$route.path'() {
-        this.showing = false
+        this.hide()
+      },
+      '$route.hash'() {
+        console.log('hash changed')
+        this.hide()
       },
       '$store.state.window.size.width'() {
         this.showing = false
       },
-      showing(val) {
-        if(!val) {
-          try {
-            this.$emit('exited');
-            this.$refs.containerEl.removeEventListener('click', this.stopPropagationOnClick);
-          } catch {}
-        } else {
-          // if(this.$refs.containerEl) {
-          //   this.setContainerPosition();
-          // }
-          let addClickListener = (tried = 0) => {
-            const maxTries = 10;
-            if(!this.$refs.containerEl || !this.$refs.containerEl.addEventListener) {
-              if(tried >= maxTries) {
-                return
-              }
-              return asyncDelay(250).then(() => addClickListener(tried + 1))
-            }
-            this.$refs.containerEl.addEventListener('click', this.stopPropagationOnClick, {passive: true})
-            this.setContainerPosition();
-          }
-          addClickListener = addClickListener.bind(this)
-
-          addClickListener()
-          
-        }
-      }
+      
     },
     mounted() {
       let initListeners = (tried = 0) => {
@@ -143,30 +163,25 @@ import {asyncDelay} from '~/utils/funcs'
       initListeners()
     },
     destroyed() {
-      try {
-        window.removeEventListener('click', this.detectClickOutside); 
-      } catch {}
-
-      try {
-        this.triggerEl.removeEventListener('click', this.triggerClicked)
-      } catch {}
-      try {
-        this.$el.removeEventListener('click', this.stopPropagationOnClick); 
-      } catch {}
+      this.removeListeners()
     },
     methods: {
       triggerClicked(e) {
+        console.log('triggerClicked')
         this.stopPropagationOnClick(e, this.closeOnClick);
         this.showing = !this.showing
         this.setContainerPosition()
       },
-      clickedOutside() {
-        if(!this.showing) {return}
+      clickedOutside(e) {
+        if(!this.showing) { return }
         this.showing = false
+        e.stopPropagation();
       },
       stopPropagationOnClick(e, force = false) {
         this.$store.commit('window/setClick', e)
-        if(this.closeOnClick && !force) {return}
+        if(this.closeOnClick && !force) {
+          return
+        }
         e.stopPropagation();
       },
       setContainerPosition(tried = 0) {
@@ -177,32 +192,51 @@ import {asyncDelay} from '~/utils/funcs'
           }
           return asyncDelay(100).then(() => this.setContainerPosition(tried + 1))
         }
-        let top = `${this.$store.state.window.click.y - ((this.$refs.containerEl && this.$refs.containerEl.offsetHeight ? this.$refs.containerEl.offsetHeight : 0) / 2)}px`;
-        let left = `${this.$store.state.window.click.x - ((this.$refs.containerEl && this.$refs.containerEl.offsetWidth ? this.$refs.containerEl.offsetWidth : 0) / 2)}px`;
-        if (parseInt(left) + this.$refs.containerEl.offsetWidth > document.body.offsetWidth ) {
-          if(this.$refs.containerEl.offsetWidth > document.body.offsetWidth ) {
-            this.$refs.containerEl.style.width = `${document.body.offsetWidth  - 40}px`
-            left = '20px'
-          } else {
-            left = `${document.body.offsetWidth - (this.$refs.containerEl.offsetWidth + 20)}px`
-          }
+        const containerWidth = this.$refs.containerEl.offsetWidth > document.body.offsetWidth
+          ? document.body.offsetWidth  - 40
+          : this.$refs.containerEl.offsetWidth;
+        const containerHeight = this.$refs.containerEl.offsetHeight > document.body.offsetHeight
+          ? document.body.offsetHeight - 60
+          : this.$refs.containerEl.offsetHeight;
+        let top = this.$store.state.window.click.y - (containerHeight / 2);
+        let left = this.$store.state.window.click.x - (containerWidth / 2);
+        console.log({ top, left, clickY: this.$store.state.window.click.y, clickX: this.$store.state.window.click.x, docWidth: document.body.offsetWidth, containerWidth: this.$refs.containerEl.offsetWidth })
+        if ((left + containerWidth) > (document.body.offsetWidth - 20) ) {
+          left = document.body.offsetWidth - (containerWidth + 20);
         }
-        if(parseInt(top) < 40) {
-          top = '20px'
-        } else if(parseInt(top) + this.$refs.containerEl.offsetHeight > document.body.offsetHeight) {
-          top = `${document.body.offsetHeight - (this.$refs.containerEl.offsetHeight + 20)}px`
+        if(top < 40) {
+          top = 20
+        } else if(top + containerHeight > window.innerHeight) {
+          top = document.body.offsetHeight - (containerHeight + 20);
         }
         this.popoverPosition = {
-          top: parseInt(top) < 40 ? '40px' : top,
-          left: `${this.$store.state.window.click.x - ((this.$refs.containerEl && this.$refs.containerEl.offsetWidth ? this.$refs.containerEl.offsetWidth : 0) / 2)}px`,
+          top: `${top}px`,
+          left: `${left}px`,
         };
-        asyncDelay(400).then(() => window.scrollTo({left: 0, top: parseInt(this.popoverPosition.top) - 100, behavior: 'smooth'}))
+        asyncDelay(400).then(() => window.scrollTo({left: 0, top: this.popoverPosition.top <= 100 ? 0 : this.popoverPosition.top - 100, behavior: 'smooth'}))
       },
       show() {
         asyncDelay(100).then(() => this.showing = true)
       },
       hide() {
-        this.showing = false
+        console.log('hide', this.showing)
+        Vue.set(this, 'showing', false) 
+        console.log('hide', this.showing)
+        return asyncDelay(300)
+      },
+      removeListeners() {
+        try {
+          window.removeEventListener('click', this.clickedOutside); 
+        } catch {}
+        try {
+          this.triggerEl.removeEventListener('click', this.triggerClicked)
+        } catch {}
+        try {
+          this.$el.removeEventListener('click', this.stopPropagationOnClick); 
+        } catch {}
+        try {
+          this.$refs.containerEl.removeEventListener('click', this.stopPropagationOnClick);
+        } catch {}
       }
     }
 
@@ -212,8 +246,9 @@ import {asyncDelay} from '~/utils/funcs'
 <style lang="scss">
 .popover-container {
   animation-delay: .2s;
-  // max-height: calc(100vh - 2rem);
   width: auto;
+  max-width: calc(100vw - 40px);
+  min-width: 160px;
   @apply bg-shade-30 shadow-xl shadow-shade-10/30 rounded-md p-1 z-9999;
   .popover-body {
     @apply overflow-scroll;

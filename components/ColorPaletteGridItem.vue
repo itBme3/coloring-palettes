@@ -1,9 +1,10 @@
 <template>
   <button
     v-if="palette"
-    class="color-palette-grid-item grid-item relative group text-left"
+    class="color-palette-grid-item grid-item relative text-left"
     :class="{
       ['style-' + itemStyle]: true,
+      'group': !swatchClickable
     }"
     @mouseleave="
       $emit('hovered', false);
@@ -47,8 +48,13 @@
         :actions="false"
         :delay-show="i * 50"
         :swatch-style="swatchStyle"
+        class="group"
         @click="e => swatchClickable ? $emit('color', e) : ''"
-      />
+      >
+      <Icon v-if="swatchClickable" 
+        icon="add"
+        class="m-auto scale-50 opacity-0 group-hover:opacity-75 group-hover:scale-100 transition-all duration-300" />
+      </ColorSwatch>
     </div>
 
     <nuxt-link
@@ -70,16 +76,14 @@
       "
     />
 
-    <Transition v-if="actions" name="scale-fade-items">
       <keep-alive>
-        <ColorPaletteActions
-          class="absolute right-2 top-0 transform scale-[0.7] translate-x-[15%]"
-          :palette="palette"
-          :show="hovered"
-          @rename="$refs.paletteNameInput.select()"
+        <PopoverActions 
+          class="absolute top-4 right-0 z-10"
+          :item="palette"
+          text-color="rgb(200,200,200)"
         />
       </keep-alive>
-    </Transition>
+
   </button>
 </template>
 <script>
@@ -101,7 +105,7 @@ export default {
     },
     swatchStyle: {
       type: String,
-      default: 'tile',
+      default: 'simple',
     },
     swatchClickable: {
       type: Boolean,
@@ -154,3 +158,28 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+.color-palette-grid-item {
+  .menu-toggle {
+    background-color: rgba(0,0,0,.1);
+    font-size: 1.3em;
+  }
+}
+</style>
+<style lang="scss" scoped>
+.colors {
+  @apply flex-nowrap;
+  
+  .color-swatch {
+    @apply m-px #{!important};
+  }
+}
+.style-wrap-colors {
+  .colors {
+    @apply flex-wrap;
+    .color-swatch {
+      max-width: 30px;
+    }
+  }
+}
+</style>

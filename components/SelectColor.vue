@@ -1,6 +1,6 @@
 <template>
   <Popover 
-    ref="popoverElem"
+    ref="popoverEl"
     class="select-color"
     :classes="{
       heading: 'absolute z-9 right-2 top-2',
@@ -11,7 +11,7 @@
     <template slot="trigger">
       <slot name="trigger">
         <button 
-          class="add-color color-swatch ml-3 text-base bg-transparent">
+          class="add-color color-swatch text-base bg-transparent">
           <Icon class="m-auto" icon="add" />
         </button>
       </slot>
@@ -56,9 +56,9 @@
               class="w-full"
               @update="e => {
                 if (customColor === defaultColor) {
-                  $emit('color', {id: uid(), createdAt: Date.now(), name: e, value: e})
+                  emitSelection({id: uid(), createdAt: Date.now(), name: e, value: e})
                 } else {
-                  $emit('update', {id: uid(), createdAt: Date.now(), name: e, value: e})
+                  emitSelection({id: uid(), createdAt: Date.now(), name: e, value: e}, 'update')
                 }
                 customColor = e;
               }" 
@@ -73,16 +73,17 @@
                 selectedPaletteId = e.id; 
                 view = 'palettes'
               }"
-              @color="e => $emit('color', e)" />
+              @color="e => emitSelection(e)" />
             <ColorPaletteGridItem
               v-else
-              :palette-id="selectedPaletteId"
+              :palette-id="palette.id"
               :link="false"
               :actions="false"
               swatch-style="simple"
+              item-style="wrap-colors"
               :swatch-clickable="true"
-              @color="e => $emit('color', e)"
-              class="mt-6"
+              @color="e => emitSelection(e)"
+              class="mt-6 hover:scale-100 border-0 p-2 hover:bg-transparent"
             />
           </template>
           
@@ -103,7 +104,7 @@
                   selectedPaletteId = palette;
                   view = 'palettes'
                 }"
-                @color="e => $emit('color', e)"
+                @color="e => emitSelection(e)"
                 class="mt-6 border-0"
               />
             </div>
@@ -145,9 +146,9 @@ import { v4 as uuidv4 } from 'uuid';
         view: this.custom 
           ? 'custom'
           : this.paletteId
-            ? 'palette'
+            ? 'palettes'
             : this.collectionId 
-              ? 'collection'
+              ? 'collections'
               : 'default'
       }
     },
@@ -178,6 +179,13 @@ import { v4 as uuidv4 } from 'uuid';
       uid: uuidv4,
       log(e) {
         console.log(e)
+      },
+      emitSelection(e, name = 'color') {
+        if(this.view === 'custom') {
+          return this.$emit(name, e)
+        }
+        this.$refs.popoverEl.hide()
+          .then(() => this.$emit(name, e))
       }
     }
   })

@@ -98,6 +98,7 @@ export default {
   methods: {
     newColor(color) {
       const newColor = { ...color, value: chroma(color.value).hex() };
+      console.log({newColor})
       this.$store.dispatch('addColorToPalette', {
         color: newColor,
         paletteId: this.palette.id,
