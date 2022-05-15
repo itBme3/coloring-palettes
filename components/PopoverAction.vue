@@ -79,8 +79,7 @@
     </template>
     
     <template v-else-if="action === 'move'">
-      <component 
-        :is="itemType === 'palette' ? 'SelectCollection' : 'SelectPalette'"
+      <SelectPalette
         @select="e => handleAction(!!e && !!e.id ? e.id : null)"
       />
     </template>
@@ -129,23 +128,17 @@ import {capitalize, asyncDelay} from '~/utils/funcs'
     }),
     computed: {
       isPalettePage() {
-        return (
-          (this.$route.path.split('/')[1] === 'palettes' &&
-            this.$route.params.id) ||
-          !!this.$route.params.palette
-        );
+        return !!this.$route.params.palette
       },
       itemType () {
-        return Object.keys(this.item).includes('palettes')
-          ? 'collection'
-          : Object.keys(this.item).includes('colors')
+        return Object.keys(this.item).includes('colors')
           ? 'palette'
           : Object.keys(this.item).includes('value')
           ? 'color'
           : null
       },
       itemTypeExists() {
-        return ['collection','palette', 'color'].includes(this.itemType)
+        return ['palette', 'color'].includes(this.itemType)
       },
       itemName: {
         get() {
@@ -178,7 +171,7 @@ import {capitalize, asyncDelay} from '~/utils/funcs'
         }
         const parentId = !!props ? typeof props === 'string' ? props : !!props.id ? props.id : null : null;
         if(typeof parentId === 'string') {
-          params[`${this.itemType === 'palette' ? 'collectionId' : 'paletteId'}`] = parentId
+          params['paletteId'] = parentId
         }
         if (this.closeOnClick && !['color'].includes(this.action)) {
           await this.hide();
@@ -191,10 +184,7 @@ import {capitalize, asyncDelay} from '~/utils/funcs'
             this.$store.dispatch(`duplicate${capitalize(this.itemType)}`, params)
             break;
           case 'move':
-            if(this.itemType !== 'collection') {
-              console.log({params})
               this.$store.dispatch(`move${capitalize(this.itemType)}`, params)
-            }
             break;
           case 'copyColors':
             this.copyColors(props)

@@ -1,13 +1,16 @@
 <template>
-
-<div class="popover-actions"
-  v-if="item">
+<client-only>
+<div 
+  v-if="item"
+  ref="popoverActions"
+  class="popover-actions"
+  @click="e => e.stopPropagation()">
   <component
     :is="collapsedActions ? 'Popover' : 'div'"
     :close-on-click="true">
     <template #trigger v-if="collapsedActions">
       <button 
-        class="menu-toggle absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 m-0 bg-opacity-10 text-shade-220 w-6 h-6 flex content-center items-center text-center p-0 text-opacity-50 hover:text-opacity-70"
+        class="menu-toggle"
         :style="{color: textColor }">
         <Icon 
           class="m-auto"
@@ -24,11 +27,11 @@
       key="toggleActions"
       :class="{
         'flex-col content-start items-stretch space-y-1 mx-0': collapsedActions,
-        'flex-row content-end items-center space-x-1 ml-auto mr-0 opacity-0 scale-50 group-hover:scale-100 group-hover:opacity-100': !collapsedActions,
+        'flex-row content-end items-center space-x-1 ml-auto mr-0': !collapsedActions,
       }">
         <button
           v-for="action in activeActions"
-          v-tooltip="!collapsedActions ? {content: action, position: 'top', offset: 6, boundariesElement: $el.parentNode} : undefined"
+          v-tooltip="!collapsedActions ? {content: action, position: 'top', offset: 6, boundariesElement: parentNode } : undefined"
           class="icon-button toggle-action-button items-center flex group"
           :class="{
             'content-center': !collapsedActions,
@@ -57,6 +60,7 @@
     @color="(e) => action === 'color' ? $emit('color', e) : ''"
     />
 </div>
+</client-only>
 
 </template>
 
@@ -108,9 +112,7 @@ import Vue from 'vue'
     },
     computed: {
       itemType () {
-        return Object.keys(this.item).includes('palettes')
-          ? 'collection'
-          : Object.keys(this.item).includes('colors')
+        return Object.keys(this.item).includes('colors')
           ? 'palette'
           : Object.keys(this.item).includes('value')
           ? 'color'
@@ -119,15 +121,16 @@ import Vue from 'vue'
       activeActions() {
         const possibleActions = ["rename", "delete", "duplicate"];
         switch (this.itemType) {
-          case 'collection':
-            return possibleActions
           case 'palette':
-            return ['copyColors', ...possibleActions, 'move']
+            return ['copyColors', ...possibleActions]
           case 'color':
             return ['color', 'copyColors', ...possibleActions, 'move']
           default:
             return [];
         }
+      },
+      parentNode() {
+        return this.$el && this.$el.parentNode ? this.$el.parentNode : document.querySelector('main')
       }
     },
     methods: {
@@ -153,6 +156,12 @@ import Vue from 'vue'
   })
 </script>
 
-<style scoped>
-
+<style lang="scss">
+.color-swatch, .grid-item {
+  .popover-actions {
+    .menu-toggle { 
+      @apply absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full m-0 bg-opacity-10 text-shade-220 w-6 h-6 flex content-center items-center text-center p-0 text-opacity-50 hover:text-opacity-70;
+    }
+  }
+}
 </style>

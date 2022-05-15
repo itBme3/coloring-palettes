@@ -150,11 +150,7 @@ export default {
   },
   computed: {
     isPalettePage() {
-      return (
-        (this.$route.path.split('/')[1] === 'palettes' &&
-          this.$route.params.id) ||
-        !!this.$route.params.palette
-      );
+      return !!this.$route.params.palette
     },
     tooltipAttribute() {
       return this.isPalettePage ? 'v-tooltip.left' : 'v-tooltip.auto.state';
@@ -180,22 +176,14 @@ export default {
   methods: {
     deletePalette() {
       const paletteId = `${this.palette.id}`;
-      const isPalettePage =
-        (this.$route.path.split('/')[1] === 'palettes' &&
-          this.$route.params.id) ||
-        this.$route.params.palette;
       this.view = null;
-      if (!isPalettePage) {
+      if (!this.$route.params.palette) {
         return;
       }
 
       this.$store.dispatch('deletePalette', paletteId);
       setTimeout(() => {
-        this.$router.push(
-          this.$route.params.collection
-            ? `/collections/${this.$route.params.collection}`
-            : `/palettes`
-        );
+        this.$router.push(`/`);
       }, 500);
     },
     handleAction(action) {
@@ -204,11 +192,7 @@ export default {
           this.view = 'copying-colors';
           break;
         case 'edit':
-          this.$router.push(
-            this.$route.params.collection
-              ? `/collections/${this.$route.params.collection}/${this.palette.id}`
-              : `/palettes/${this.palette.id}`
-          );
+          this.$router.push(`/${this.palette.id}`);
           break;
         case 'duplicate':
           console.log('duplicate');

@@ -3,6 +3,28 @@
     v-if="palette && palette.name"
     class="color-palette ml-2 mr-auto w-full relative inline-block"
   >
+
+
+    <div class="flex right-0 mx-12 py-2 bg-shade-20">
+
+      <PopoverActions 
+        :item="palette"
+        :input-el="$refs.nameInput"
+        text-color="rgba(240,240,240)"
+        :collapsed-actions="!!$store.state.window.size.isMobile"
+      />
+      <input
+        ref="nameInput"
+        class="title text-xl relative z-10 mb-3 border-transparent bg-transparent outline-transparent w-2/3 hover:scale-100 focus-visible:scale-100 hover:shade-40 focus-visible:ring-shade-40 focus-visible:bg-shade-40"
+        type="text"
+        name="name-input"
+        :value="palette.name"
+        @input="updatePaletteName"
+      />
+    </div>
+
+
+
       <aside ref="paletteNav" class="sticky float-left top-2 w-[160px] rounded-md border border-shade-30 p-4">
 
         <div class="toggle-buttons flex flex-col space-y-2 mb-6 relative z-9">

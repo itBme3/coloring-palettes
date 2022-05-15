@@ -59,16 +59,12 @@
 
     <nuxt-link
       v-if="link"
-      :to="
-        collectionId
-          ? '/collections/' + collectionId + '/' + palette.id
-          : '/palettes/' + palette.id
-      "
+      :to="'/' + palette.id"
       class="absolute inset-1 z-1"
     ></nuxt-link>
 
     <div
-      class="overlay absolute inset-0 z-99"
+      class="overlay absolute inset-0 z-10"
       v-if="!hovered"
       @click="
         $emit('hovered', true);
@@ -92,10 +88,6 @@ import { mapGetters } from 'vuex';
 export default {
   props: {
     paletteId: {
-      type: String,
-      default: null,
-    },
-    collectionId: {
       type: String,
       default: null,
     },

@@ -20,24 +20,6 @@
     >
       <Icon class="m-auto" :icon="sidebarCollapsed ? 'ellipsis' : 'arrow-right'" />
     </button>
-    <transition
-      :name="isSidebar ? 'left-fade' : 'down-fade'"
-      :duration="{ enter: 500, leave: 100 }"
-    >
-      <input
-        v-if="view.includes('input') && (!sidebarCollapsed || !isSidebar)"
-        ref="nameInput"
-        class="title relative z-10 mb-3 border-transparent bg-transparent outline-transparent"
-        :class="{
-          'text-4xl': !isSidebar,
-          'text-sm rounded-none border-l-0 border-r-0 border-t-0 !border-shade-20 border-1 bg-transparent hover:border-20 !focus:border-20 !hover:bg-shade-20 !focus:bg-shade-20 hover:rounded focus:rounded pl-0 focus:pl-2 hover:pl-2':
-            isSidebar,
-        }"
-        type="text"
-        :value="palette.name"
-        @input="updatePaletteName"
-      />
-    </transition>
     <transition name="up-fade" :duration="{ enter: 500, leave: 100 }">
       <div class="colors-wrapper">
         <draggable
@@ -145,11 +127,6 @@ export default Vue.extend({
     }
   },
   methods: {
-    updatePaletteName: debounce(function (e) {
-      this.$store.dispatch('updatePalette', {
-        palette: { ...this.palette, name: e.target.value },
-      });
-    }, 100),
     updateColor(color, value) {
       this.$store.commit('updateColor', { ...color, value })
     },

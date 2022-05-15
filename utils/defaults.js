@@ -492,15 +492,3 @@ export const initialPalettes = [
   },
 ];
 
-export const initialCollections = [
-  {
-    name: 'Some Collection',
-    id: 'some-collection',
-    palettes: ['almost-summer', 'pop', 'bubbles', 'pascal'],
-  },
-  {
-    name: 'Tailwind',
-    id: 'tailwind',
-    palettes: tailwindPalettes.map((p) => p.id),
-  },
-];
