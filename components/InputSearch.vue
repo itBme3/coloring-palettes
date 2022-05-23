@@ -5,8 +5,8 @@
       items-center
       content-between
       form-field
-      bg-shade-30
-      focus-within:bg-shade-20
+      bg-shade-20
+      focus-within:bg-site-dark
     "
   >
     <input

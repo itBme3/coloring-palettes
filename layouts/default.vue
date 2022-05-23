@@ -8,8 +8,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
-export default Vue.extend({
+export default {
   mounted() {
     window.addEventListener('scroll', this.onScroll, {passive: true});
     window.addEventListener('resize', this.onResize, {passive: true});
@@ -17,10 +16,18 @@ export default Vue.extend({
     this.onResize();
     this.onScroll();
   },
-  destroyed() {
+  beforeUnmount() {
     window.removeEventListener('scroll', this.onScroll);
     window.removeEventListener('resize', this.onResize);
     window.removeEventListener('click', this.onClick);
+  },
+  watch: {
+    '$route.path'(val) {
+      document.querySelectorAll('.site-container > .popover-container')
+        .forEach(el => el.remove());
+      document.querySelectorAll('main > .overlay')
+        .forEach(el => el.remove());
+    }
   },
   methods: {
     onResize() {
@@ -34,8 +41,9 @@ export default Vue.extend({
       this.$store.commit('window/setScrolling')
     },
     onClick(e) {
+      console.log({ e })
       this.$store.commit('window/setClick', e)
     }
   }
-})
+}
 </script>

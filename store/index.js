@@ -129,20 +129,21 @@ export const actions = {
     const d = new Date();
     let name = `${palette.name} (${d.toLocaleDateString(d).split('/').join('-')} ${d.toLocaleTimeString().split(' ').join('')}`;
     const nameAndHandle = generatePaletteName(this.getters.storedPalettes, name, handleize(name));
-    const newPaletteId = uuidv4();
+    const newPalette = {
+      ...palette,
+      ...nameAndHandle,
+      id: uuidv4(),
+      colors: this.getters.storedPalettes.filter(p => p.id === palette.id)[0]
+        .colors.map(c => { return { ...c, id: uuidv4() } })
+    };
     const palettes = this.getters.storedPalettes.reduce((acc, p) => {
       if (p.id === palette.id) {
-        return [...acc, { ...palette, colors: palette.colors.map(c => { return { ...c, id: uuidv4() } }), ...nameAndHandle, id: newPaletteId }, p]
+        return [...acc, newPalette, p]
       }
       return [...acc, p]
     }, []);
     commit('setPalettes', palettes);
-    if (window.location.pathname.split('/')[1] === 'palettes' && window.location.pathname.split('/').length > 2) {
-      window.open(`/palettes/${nameAndHandle.handle}`, '_blank');
-    }
-    if(window.location.pathname.split('/')[1] === 'palettes' && window.location.pathname.split('/').length > 3) {
-      window.open(`/palettes/${nameAndHandle.handle}`, '_blank');
-    }
+    return newPalette
   },
 
   duplicateColor ({ dispatch }, color) {
@@ -222,7 +223,7 @@ export const getters = {
   },
   editingSelectedColors(state) {
     const palette =
-      state?.stored?.palettes?.filter((p) => p.id === state?.palette)[0] || null;
+      window !== undefined && state?.stored?.palettes?.filter((p) => p.id === state?.palette)[0] || null;
     if (!palette) {
       return state?.editing?.selectedColors?.length
         ? state.editing.selectedColors
@@ -232,11 +233,11 @@ export const getters = {
   },
   editingPaletteColors(state) {
     const palette =
-      state?.stored?.palettes?.filter((p) => p.id === state?.palette)[0] || null;
+      window !== undefined && state?.stored?.palettes?.filter((p) => p.id === state?.palette)[0] || null;
     return palette?.colors || [];
   },
   storedPalettes(state) {
-    return state?.stored?.palettes?.length
+    return window !== undefined && state?.stored?.palettes?.length
       ? state.stored.palettes
       : initialPalettes;
   },

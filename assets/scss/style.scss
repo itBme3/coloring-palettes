@@ -8,10 +8,14 @@
 @import '~/assets/tailwind.css';
 
 body {
-  @apply bg-shade-20 text-white;
+  @apply bg-site-dark text-white;
 }
 
 a {
   color: inherit;
   text-decoration: inherit;
+}
+::selection {
+  background-color: #ffffff;
+	color: #000000;
 }

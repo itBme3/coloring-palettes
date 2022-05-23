@@ -61,7 +61,7 @@
 
     <small
       v-else-if="view === 'copied'"
-      class="rounded text-green-300 bg-shade-40 px-2 py-1 shadow-lg"
+      class="rounded text-green-300 bg-shade-30 px-2 py-1 shadow-lg"
     >
       copied 👍
     </small>
@@ -90,7 +90,7 @@
           :key="action + '-' + isPalettePage"
           v-tooltip.auto-start="{
             content: action,
-            classes: ['rounded', 'bg-shade-30', 'z-90'],
+            classes: ['rounded', 'bg-shade-20', 'z-90'],
             offset: '5px',
           }"
           class="action-button"
@@ -104,7 +104,7 @@
           :key="action + '-' + isPalettePage"
           v-tooltip.left="{
             content: isPalettePage ? undefined : action,
-            classes: ['rounded', 'bg-shade-30', 'z-90'],
+            classes: ['rounded', 'bg-shade-20', 'z-90'],
             offset: '5px',
           }"
           class="action-button"

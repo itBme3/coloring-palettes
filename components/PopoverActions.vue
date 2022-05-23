@@ -4,7 +4,10 @@
   v-if="item"
   ref="popoverActions"
   class="popover-actions"
-  @click="e => e.stopPropagation()">
+  @click="e => {
+    $store.commit('window/setClick', e)
+    e.stopPropagation()
+  }">
   <component
     :is="collapsedActions ? 'Popover' : 'div'"
     :close-on-click="true">
@@ -31,7 +34,7 @@
       }">
         <button
           v-for="action in activeActions"
-          v-tooltip="!collapsedActions ? {content: action, position: 'top', offset: 6, boundariesElement: parentNode } : undefined"
+          v-tooltip="!collapsedActions ? {content: action, placement: 'top' } : undefined"
           class="icon-button toggle-action-button items-center flex group"
           :class="{
             'content-center': !collapsedActions,
@@ -39,10 +42,14 @@
           }"
           @click="(e) => handleAction(action)"
         >
-          <small class="text-xs text-gray-400 font-normal mr-auto pr-2" v-if="collapsedActions">{{action}}</small>
+          <small
+            class="text-xs text-shade-200 font-normal mr-auto pr-2"
+            :class="{
+              'tooltip': !collapsedActions,
+            }">{{action.split('-').join(' ')}}</small>
           <Icon
             class="opacity-50 group-hover:opacity-100"
-            :icon="Array.isArray(action) ? action[1] : action"
+            :icon="action === 'copy-colors' ? 'copy' : action "
           />
         </button>
     </div>
@@ -54,7 +61,7 @@
     :item="item"
     :action="action"
     :input-el="$refs.nameInput"
-    :close-on-click="['delete'].includes(action)"
+    :close-on-click="['delete', 'duplicate', 'copy-colors'].includes(action)"
     :text-color="textColor"
     :max-width="action === 'move' ? '500px' : '300px' "
     @color="(e) => action === 'color' ? $emit('color', e) : ''"
@@ -65,9 +72,7 @@
 </template>
 
 <script>
-  import { capitalize } from '@vue/shared';
-import Vue from 'vue'
-  export default Vue.extend({
+  export default {
     props: {
       item: {
         type: Object,
@@ -107,8 +112,12 @@ import Vue from 'vue'
     data: () => ({
       view: null
     }),
-    mounted() {
-      
+    watch: {
+      '$route.path'() {
+        console.log('path changed')
+        this.showing = false
+        this.hide()
+      },
     },
     computed: {
       itemType () {
@@ -122,9 +131,9 @@ import Vue from 'vue'
         const possibleActions = ["rename", "delete", "duplicate"];
         switch (this.itemType) {
           case 'palette':
-            return ['copyColors', ...possibleActions]
+            return ['copy-colors', ...possibleActions]
           case 'color':
-            return ['color', 'copyColors', ...possibleActions, 'move']
+            return ['color', 'copy-colors', ...possibleActions, 'move']
           default:
             return [];
         }
@@ -135,9 +144,9 @@ import Vue from 'vue'
     },
     methods: {
       handleAction(action) {
-          if(action === 'duplicate') {
-            return this.$store.dispatch(`duplicate${capitalize(this.itemType)}`, this.item) 
-          }
+          // if(action === 'duplicate') {
+          //   return this.$store.dispatch(`duplicate${capitalize(this.itemType)}`, this.item) 
+          // }
           if(action === 'rename') {
             if(this.inputEl && this.inputEl.select) {
               return this.inputEl.select()
@@ -153,7 +162,7 @@ import Vue from 'vue'
           // this.$emit(action, this.color.value);
       },
     }
-  })
+  }
 </script>
 
 <style lang="scss">
@@ -161,6 +170,18 @@ import Vue from 'vue'
   .popover-actions {
     .menu-toggle { 
       @apply absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full m-0 bg-opacity-10 text-shade-220 w-6 h-6 flex content-center items-center text-center p-0 text-opacity-50 hover:text-opacity-70;
+    }
+  }
+}
+.tooltip {
+  @apply transition-all bg-shade-50 shadow-lg shadow-black/50 z-10 ease-in-out opacity-0 scale-0 absolute left-1/2 -translate-x-1/2 top-0 -translate-y-1/2 rounded py-1 px-1.5 whitespace-nowrap text-center;
+}
+.toggle-action-button {
+  @apply z-0;
+  &:hover {
+    @apply z-2;
+    .tooltip {
+      @apply opacity-100 scale-100;
     }
   }
 }

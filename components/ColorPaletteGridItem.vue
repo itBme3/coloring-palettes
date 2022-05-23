@@ -24,7 +24,7 @@
         relative
         z-10
         bg-transparent
-        hover:bg-shade-20
+        hover:bg-site-dark
         bg-opacity-10
         pl-0
         hover:pl-2

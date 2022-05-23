@@ -64,7 +64,7 @@
           name="name-input"
           key="color-name-input"
           type="text"
-          class="my-auto ml-4 mr-12 bg-opacity-0 group-hover:bg-shade-40 group-hover:bg-opacity-5 group-hover:text-shade-190 focus-visible:ring-offset-shade-20 w-full"
+          class="my-auto ml-4 mr-12 bg-opacity-0 group-hover:bg-shade-30 group-hover:bg-opacity-5 group-hover:text-shade-190 focus-visible:ring-offset-shade-20 w-full"
           :style="{
             color: textColor + ' !important'
           }"
@@ -265,7 +265,7 @@ export default defineComponent({
     }
   }
   &.style-list-item {
-    @apply w-full bg-shade-30 shadow py-1 pl-1 overflow-x-scroll h-20 flex items-center content-between;
+    @apply w-full bg-shade-20 shadow py-1 pl-1 overflow-x-scroll h-20 flex items-center content-between;
     .popover {
       @apply ml-auto mr-0;
     }

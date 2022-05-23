@@ -25,6 +25,8 @@ module.exports = {
       purple: colors.purple,
       blue: colors.blue,
       cyan: colors.blue,
+      'site-dark': 'rgb(15, 15, 25)',
+      'site-light': 'rgb(245, 245, 255)',
       'shade-10': 'rgb(10, 10, 20)',
       'shade-20': 'rgb(20, 20, 30)',
       'shade-30': 'rgb(30, 30, 40)',

@@ -1,10 +1,10 @@
 <template>
   <div class="color-mixing-controls">
     <div
-      class="max-w-full my-2 pt-1 pb-3 rounded-md"
+      class="max-w-full mb-2 pb-3 rounded-md"
     >
       <div
-        class="form-field w-32 mt-2 pl-3 py-1 flex items-center"
+        class="form-field w-32 mt-2 pl-3 py-1 flex items-center focus-within:border-0"
         @click="$refs.stepInput.focus()"
       >
         <label for="steps" class="text-xs text-shade-90">steps: </label>
@@ -14,13 +14,7 @@
           name="steps"
           v-model="steps"
           :step="mixType === 'random' ? 10 : 3"
-          class="
-            w-full
-            !border-none
-            !ring-0
-            !outline-none
-            !focus:border-none !focus:ring-0 !focus:outline-none
-          "
+          class="w-full py-1 border-none ring-0 outline-none focus-visible:border-0 focus-visible:ring-0 focus-visible:outline-none"
         />
       </div>
       <div class="flex items-center mt-2 relative">
@@ -132,6 +126,6 @@ export default {
 <style lang="scss">
 .add-color {
   @apply flex items-center content-center border-2 border-dashed hover:border-solid text-center;
-  @apply hover:bg-shade-30 border-shade-30 #{!important};
+  @apply hover:bg-shade-20 border-shade-30 #{!important};
 }
 </style>

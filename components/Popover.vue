@@ -4,9 +4,7 @@
       <slot name="trigger" />
     </span>
     <Teleport v-if="showing" to="main">
-      <div class="overlay fixed inset-0">
-        overlay
-      </div>
+      <div class="overlay fixed inset-0" />
     </Teleport>
     <Teleport to=".site-container">
       <Transition
@@ -59,7 +57,7 @@
   import Vue from 'vue'
   import Teleport from 'vue2-teleport'
 import {asyncDelay} from '~/utils/funcs'
-  export default Vue.extend({
+  export default {
     components: {
       Teleport
     },
@@ -102,7 +100,6 @@ import {asyncDelay} from '~/utils/funcs'
           return this.isShowing;
         },
         set(val) {
-          console.log({val})
           this.isShowing = val
           if(!val) {
             try {
@@ -112,14 +109,12 @@ import {asyncDelay} from '~/utils/funcs'
           } else {
             function addClickListener(tried = 0) {
               const maxTries = 10;
-              console.log(tried)
               if(!this.$refs.containerEl || !this.$refs.containerEl.addEventListener) {
                 if(tried >= maxTries) {
                   return
                 }
                 return asyncDelay(250).then(() => addClickListener(tried + 1))
               }
-              console.log({this: this})
               this.$refs.containerEl.addEventListener('click', this.stopPropagationOnClick, {passive: true})
               this.setContainerPosition();
             }
@@ -131,13 +126,7 @@ import {asyncDelay} from '~/utils/funcs'
       }
     },
     watch: {
-      '$route.path'() {
-        this.hide()
-      },
-      '$route.hash'() {
-        console.log('hash changed')
-        this.hide()
-      },
+      
       '$store.state.window.size.width'() {
         this.showing = false
       },
@@ -162,8 +151,10 @@ import {asyncDelay} from '~/utils/funcs'
        initListeners = initListeners.bind(this)
       initListeners()
     },
-    destroyed() {
-      this.removeListeners()
+    beforeUnmount() {
+      this.removeListeners();
+      this.hide();
+      console.log('before unmount')
     },
     methods: {
       triggerClicked(e) {
@@ -216,12 +207,10 @@ import {asyncDelay} from '~/utils/funcs'
         asyncDelay(400).then(() => window.scrollTo({left: 0, top: this.popoverPosition.top <= 100 ? 0 : this.popoverPosition.top - 100, behavior: 'smooth'}))
       },
       show() {
-        asyncDelay(100).then(() => this.showing = true)
+        asyncDelay(250).then(() => this.showing = true)
       },
       hide() {
-        console.log('hide', this.showing)
         Vue.set(this, 'showing', false) 
-        console.log('hide', this.showing)
         return asyncDelay(300)
       },
       removeListeners() {
@@ -240,7 +229,7 @@ import {asyncDelay} from '~/utils/funcs'
       }
     }
 
-  })
+  }
 </script>
 
 <style lang="scss">
@@ -249,14 +238,14 @@ import {asyncDelay} from '~/utils/funcs'
   width: auto;
   max-width: calc(100vw - 40px);
   min-width: 160px;
-  @apply bg-shade-30 shadow-xl shadow-shade-10/30 rounded-md p-1 z-9999;
+  @apply bg-shade-20 shadow-xl shadow-shade-10/30 rounded-md p-1 z-9999;
   .popover-body {
     @apply overflow-scroll;
     max-height: 80vh;
   }
 }
 .popover-heading {
-  @apply rounded bg-shade-40 bg-opacity-30 mb-1;
+  @apply rounded bg-shade-30 bg-opacity-30 mb-1;
 }
 .popover-close {
   @apply ml-auto bg-transparent text-red-400 w-6 h-6 p-0 flex items-center content-center;

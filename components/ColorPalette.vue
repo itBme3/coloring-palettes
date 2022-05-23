@@ -1,78 +1,77 @@
 <template>
   <div
     v-if="palette && palette.name"
-    class="color-palette ml-2 mr-auto w-full relative inline-block"
+    class="color-palette relative inline-block mx-auto w-[calc(100%-2rem)] max-w-6xl"
   >
 
 
-    <div class="flex right-0 mx-12 py-2 bg-shade-20">
-
+    <div class="sticky top-0 bg-site-dark z-10 transition-all ease-in-out"
+      :class="{
+        'pt-4': $store.state.window.scroll.y < 10
+      }">
       <PopoverActions 
         :item="palette"
         :input-el="$refs.nameInput"
         text-color="rgba(240,240,240)"
         :collapsed-actions="!!$store.state.window.size.isMobile"
+        class="ml-auto float-right mr-0 relative -bottom-1"
       />
-      <input
-        ref="nameInput"
-        class="title text-xl relative z-10 mb-3 border-transparent bg-transparent outline-transparent w-2/3 hover:scale-100 focus-visible:scale-100 hover:shade-40 focus-visible:ring-shade-40 focus-visible:bg-shade-40"
-        type="text"
-        name="name-input"
-        :value="palette.name"
-        @input="updatePaletteName"
-      />
-    </div>
-
-
-
-      <aside ref="paletteNav" class="sticky float-left top-2 w-[160px] rounded-md border border-shade-30 p-4">
-
-        <div class="toggle-buttons flex flex-col space-y-2 mb-6 relative z-9">
+      <div class="toggle-buttons flex items-center content-start space-x-2 mb-0 relative px-4">
             <button
               v-for="editView in ['palette', 'mixing']"
               :key="editView"
               @click="toggleView(editView)"
-              class="hover:text-white tracking-widest uppercase font-black border-2 border-t-0 border-x-0 border-transparent text-lg text-shade-180 bg-shade-20 bg-opacity-40"
+              class="w-auto py-1 flex-shrink px-2 tracking-widest rounded-md uppercase font-black text-lg relative border-[2px] bg-site-dark "
               :class="{
                 'order-first': editView === 'palette',
-                'border-white text-white rounded-b-none text-2xl bg-transparent cursor-default hover:bg-transparent hover:scale-100': view === editView,
+                'text-shade-250 cursor-default hover:scale-100 rounded-b-none py-3 px-2 bottom-[-3px] border-shade-40 border-b-0 hover:bg-site-dark': view === editView,
+                'text-shade-120 hover:text-shade-250 hover:bg-shade-30 border-transparent scale-95': view !== editView
               }"
             >
               {{ editView }}
             </button>
-            <ColorPaletteActions
-              v-if="view === 'palette'"
-              class="order-first"
-              :palette="palette"
-              @rename="focusInput"
-            />
         </div>
-        <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
-          <div v-if="view === 'mixing'" class="flex flex-col space-y-2" >
-              <button
-              v-for="mixView in ['scale', 'shade', 'random']"
-                :key="mixView"
-                class="hover:bg-white hover:text-shade-20 text-sm outline w-full"
-                :disabled="mixView === mixingView"
+        <div class="rounded-lg border-[2px] border-b-0 px-2 pt-2 border-shade-40 min-h-[6px] rounded-b-none">
+           <transition name="up-fade" :duration="{ enter: 300, leave: 100 }">
+              <input
+                v-if="view === 'palette'"
+                ref="nameInput"
+                class="title text-2xl relative z-10 mx-4 focus-visible:my-4 w-[calc(100%-2rem)] border-transparent bg-transparent outline-transparent max-w-full hover:scale-100 focus-visible:scale-100 hover:shade-40 focus-visible:ring-shade-40 focus-visible:bg-shade-30"
+                type="text"
+                name="name-input"
+                :value="palette.name"
+                @input="updatePaletteName"
+              />
+              <div v-else-if="view === 'mixing'" 
+                class="flex content-start items-center space-x-1 pl-2 pb-1 transition-all ease-in-out"
                 :class="{
-                  'active': mixView === mixingView,
-                }"
-                @click="mixingView = mixView"
-              >
-                {{ mixView }}
-              </button>
-          </div>
-        </transition>
-      </aside>
-    <div class="ml-auto" :style="{
-          width: $refs.paletteNav && $refs.paletteNav.offsetWidth
-            ? 'calc(100% - ' + ($refs.paletteNav.offsetWidth) + 'px - 2rem)'
-            : 'calc(100% - 2rem)',
-        }">
+                  'pt-4': $store.state.window.scroll.y < 20
+                }">
+                  <button
+                  v-for="mixView in ['scale', 'shade', 'random']"
+                    :key="mixView"
+                    class="hover:bg-white scale-95 hover:text-shade-20 hover:border-white text-sm outline w-auto py-1 px-2"
+                    :disabled="mixView === mixingView"
+                    :class="{
+                      'active': mixView === mixingView,
+                    }"
+                    @click="mixingView = mixView"
+                  >
+                    {{ mixView }}
+                  </button>
+              </div>
+            </transition>
+        </div>
+    </div>
+
+
+    
+    <div class="w-full rounded-lg p-4 pt-1 shadow-xl shadow-black border-[2px] border-t-0 rounded-t-none border-shade-40">
       <ColorPaletteDetails
         v-if="view === 'palette'"
         ref="paletteDetails"
         :palette-id="palette.id"
+        class="px-4 pb-5"
       />
       <ColorMixing
         v-if="view === 'mixing'"

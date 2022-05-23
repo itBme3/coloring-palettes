@@ -14,7 +14,7 @@
 .header-navigation {
   @apply w-auto fixed left-0 top-0 p-1 z-9999;
   a {
-    @apply w-8 h-8 flex items-center content-center rounded bg-shade-30 transform scale-90 hover:scale-100 transition-all ease-in-out hover:bg-shade-40 m-auto text-shade-150 hover:text-white;
+    @apply w-8 h-8 flex items-center content-center rounded bg-shade-20 transform scale-90 hover:scale-100 transition-all ease-in-out hover:bg-shade-30 m-auto text-shade-150 hover:text-white;
     > * {
       @apply m-auto;
     }

@@ -93,10 +93,9 @@
 </template>
 
 <script>
-  import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { v4 as uuidv4 } from 'uuid';
-  export default Vue.extend({
+  export default {
     props: {
       paletteId: {
         type: String,
@@ -149,7 +148,7 @@ import { v4 as uuidv4 } from 'uuid';
           .then(() => this.$emit(name, e))
       }
     }
-  })
+  }
 </script>
 
 <style lang="scss">

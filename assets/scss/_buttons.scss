@@ -7,7 +7,7 @@ button, .button {
     @apply bg-shade-230 text-shade-35;
   }
   &.outline {
-    @apply border-2 bg-transparent border-shade-40 hover:bg-shade-40 hover:text-shade-230;
+    @apply border-2 bg-transparent border-shade-40 hover:bg-shade-30 hover:text-shade-230;
     &.active {
       @apply bg-shade-230 border-shade-230 text-shade-30;
     }

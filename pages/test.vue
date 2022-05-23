@@ -27,13 +27,12 @@
   </div>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
+<script>
 import { mapGetters } from 'vuex';
 import draggable from 'vuedraggable';
 import PopoverActions from '../components/PopoverActions.vue';
 import ColorPaletteGridItem from '../components/ColorPaletteGridItem.vue';
-  export default Vue.extend({
+  export default {
     components: {
     draggable,
     PopoverActions,
@@ -58,7 +57,7 @@ import ColorPaletteGridItem from '../components/ColorPaletteGridItem.vue';
           console.log(e)
         }
     },
-})
+}
 </script>
 
 <style>

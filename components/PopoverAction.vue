@@ -3,8 +3,8 @@
     ref="popover"
     :classes="classes"
     :max-width="maxWidth"
-    :close-on-click="!['color'].includes(action)">
-    <template #trigger><span class="hidden">open actions</span></template>
+    :close-on-click="closeOnClick && !['copy-colors'].includes(action)">
+    <template #trigger><span class="hidden">open {{action}}</span></template>
     
     <template v-if="action === 'rename'">
       <input 
@@ -29,10 +29,20 @@
           @click="handleAction">Delete</button>
       </slot>
     </template>
+
+    <template v-else-if="action === 'duplicate'">
+      <Loading v-if="!duplicatedItem" class="mx-auto my-6" />
+      <template v-else>
+        <h4 class="text-center pt-4 pb-5 px-5">Palette Duplicated 👍</h4>
+          <button
+            class="bg-shade-20 hover:bg-shade-30 text-green-400 w-full"
+            @click="$router.push(`/${duplicatedItem.id}`)">Go To Palette</button>
+      </template>
+    </template>
     
-    <template v-else-if="action === 'copy'">
+    <template v-else-if="action === 'copy-colors'">
       <div
-      v-if="view === 'copying-colors'"
+      v-if="!view"
       class="ml-auto flex"
       :class="{
         'flex-col space-y-2': isPalettePage,
@@ -63,16 +73,19 @@
       <button
         v-for="action in copyColorActions"
         :key="action"
-        @click="copyColors(action)"
+        @click="(e) => {
+          e.stopPropagation();
+          copyColors(action)
+          }"
         class="px-2 py-1 text-sm"
       >
-        {{ action }}
+        {{ action.split('-').join(' ') }}
       </button>
     </div>
 
     <small
       v-else-if="view === 'copied'"
-      class="rounded text-green-300 bg-shade-40 px-2 py-1 shadow-lg"
+      class="rounded text-green-300 bg-shade-30 px-2 py-1 shadow-lg"
     >
       copied 👍
     </small>
@@ -88,9 +101,9 @@
 </template>
 
 <script>
-  import Vue from 'vue'
 import {capitalize, asyncDelay} from '~/utils/funcs'
-  export default Vue.extend({
+import chroma from 'chroma-js'
+  export default {
     props: {
       item: {
         type: Object,
@@ -124,8 +137,18 @@ import {capitalize, asyncDelay} from '~/utils/funcs'
       }
     },
     data: () => ({
-      view: null
+      view: null,
+      copyColorsIncludeNames: false,
+      copyColorActions: ['hex', 'rgba', 'css.rgba', 'hsl', 'css.hsl'],
+      duplicatedItem: null
     }),
+    watch: {
+      '$route.path'() {
+        console.log('path changed')
+        this.showing = false
+        this.hide()
+      },
+    },
     computed: {
       isPalettePage() {
         return !!this.$route.params.palette
@@ -151,9 +174,17 @@ import {capitalize, asyncDelay} from '~/utils/funcs'
         }
       }
     },
+    
     methods: {
       show() {
         try {
+          if (this.action === 'duplicate') {
+              this.$store.dispatch(`duplicate${capitalize(this.itemType)}`, this.item) 
+                .then(res => this.duplicatedItem = res);
+                if(this.itemType === 'color') {
+                  return
+                }
+          }
           this.$refs.popover.show()
         } catch {}
       },
@@ -173,7 +204,7 @@ import {capitalize, asyncDelay} from '~/utils/funcs'
         if(typeof parentId === 'string') {
           params['paletteId'] = parentId
         }
-        if (this.closeOnClick && !['color'].includes(this.action)) {
+        if (this.closeOnClick && !['copy-colors', 'color'].includes(this.action)) {
           await this.hide();
         }
         switch (this.action) {
@@ -186,7 +217,7 @@ import {capitalize, asyncDelay} from '~/utils/funcs'
           case 'move':
               this.$store.dispatch(`move${capitalize(this.itemType)}`, params)
             break;
-          case 'copyColors':
+          case 'copy-colors':
             this.copyColors(props)
             break;
           case 'rename':
@@ -229,12 +260,15 @@ import {capitalize, asyncDelay} from '~/utils/funcs'
             .join('\n')
         ).then(() => {
           this.view = 'copied';
-          return this.asyncDelay(750)
-            .then(() => this.view = null)
+          return asyncDelay(750)
+            .then(() => {
+              this.hide()
+              this.view = null
+            })
         });
       }
     }
-  })
+  }
 </script>
 
 <style scoped>

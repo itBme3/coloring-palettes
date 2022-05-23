@@ -57,11 +57,9 @@
 </template>
 
 <script>
-import { debounce } from 'lodash';
 import { mapGetters } from 'vuex';
 import draggable from 'vuedraggable';
-import Vue from 'vue'
-export default Vue.extend({
+export default {
   components: {
     draggable
   },
@@ -138,11 +136,11 @@ export default Vue.extend({
       this.sidebarCollapsed = true
     }
   },
-})
+}
 </script>
 <style lang="scss" scoped>
 .is-sidebar {
-  @apply bg-shade-35 right-1 transition-all ease-in-out top-1 fixed h-[calc(100vh-0.5rem)] w-[200px] p-4 rounded shadow-lg;
+  @apply bg-shade-35 z-20 right-1 transition-all ease-in-out top-1 fixed h-[calc(100vh-0.5rem)] w-[200px] p-4 rounded shadow-lg;
   input.title {
     @apply focus:ring-transparent focus:border-transparent focus:outline-0 ring-offset-transparent #{!important};
   }

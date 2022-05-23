@@ -1,5 +1,5 @@
 <template>
-  <fa :icon="iconName" @click="e => $emit('click', e)"></fa>
+  <fa class="icon" :icon="iconName" @click="e => $emit('click', e)"></fa>
 </template>
 <script>
 export default {

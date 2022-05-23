@@ -3,13 +3,13 @@
   main {
     @apply inline;
     .page {
-      @apply p-12
+      @apply py-2 px-12
     }
   }
 }
 
 .grid-item {
-  @apply p-6 w-full border bg-transparent border-shade-50 shadow-lg hover:shadow-xl hover:border-shade-40 hover:bg-shade-40 transition-all ease-in-out transform scale-100 hover:scale-103 rounded-lg;
+  @apply p-6 w-full border bg-transparent border-shade-50 shadow-lg hover:shadow-xl hover:border-shade-40 hover:bg-shade-30 transition-all ease-in-out transform scale-100 hover:scale-103 rounded-lg;
   .colors {
     @apply flex content-start items-start flex-wrap;
     .color-swatch {
