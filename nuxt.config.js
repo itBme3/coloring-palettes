@@ -10,7 +10,12 @@ export default {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: '' },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [
+      { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicons/favicon@180x.png' },
+      { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicons/favicon@32x.png' },
+      { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicons/favicon@16x.png' },
+      { rel: 'manifest', href: '/favicons/manifest.json' },
+    ],
   },
 
   ssr: false,
