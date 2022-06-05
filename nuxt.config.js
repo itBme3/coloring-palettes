@@ -1,7 +1,7 @@
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'Nuxt Coloring',
+    title: 'Coloring Palettes',
     htmlAttrs: {
       lang: 'en',
     },
@@ -19,8 +19,10 @@ export default {
   },
 
   ssr: false,
-  target: 'server',
-
+  target: 'static',
+  generate: {
+    fallback: true
+  },
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: ['~/assets/scss/style.scss'],
 
