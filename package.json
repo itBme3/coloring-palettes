@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "start": "nuxt start",
-    "build": "npm run build:css && nuxt build"
+    "start": "nuxt start --port=1333",
+    "build": "nuxt build"
   },
   "devDependencies": {
     "@fortawesome/free-regular-svg-icons": "^6.1.1",
