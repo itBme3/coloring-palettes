@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { Slider, Compact, Sketch, Twitter } from 'vue-color';
+import { Slider, Sketch, Twitter } from 'vue-color';
 import chroma from 'chroma-js';
 const defaultColor = chroma.random().hex();
 

@@ -136,7 +136,8 @@ import {asyncDelay} from '~/utils/funcs'
       let initListeners = (tried = 0) => {
         const maxTries = 10
         if(tried === 0) {
-          window.addEventListener('click', this.clickedOutside, {passive: true}); 
+          window.addEventListener('click', this.clickedOutside, {passive: true});
+          document.addEventListener('keyup', this.keyEscape, {passive: true});
         }
         if(!this.triggerEl?.addEventListener) {
           if(tried >= maxTries) {return}
@@ -168,6 +169,15 @@ import {asyncDelay} from '~/utils/funcs'
         this.showing = false
         e.stopPropagation();
       },
+      keyEscape(e) {
+        if(!this.showing) { return }
+        console.log({e})
+        if (e.keyCode == 27 || e.key === 'Enter') {
+          this.showing = false
+          this.hide();
+          e.stopPropagation();
+        }
+      },
       stopPropagationOnClick(e, force = false) {
         this.$store.commit('window/setClick', e)
         if(this.closeOnClick && !force) {
@@ -189,11 +199,14 @@ import {asyncDelay} from '~/utils/funcs'
         const containerHeight = this.$refs.containerEl.offsetHeight > document.body.offsetHeight
           ? document.body.offsetHeight - 60
           : this.$refs.containerEl.offsetHeight;
-        let top = this.$store.state.window.click.y - (containerHeight / 2);
-        let left = this.$store.state.window.click.x - (containerWidth / 2);
+        let top = this.$store.state.window.click.y;
+        let left = this.$store.state.window.click.x - (containerWidth * .5);
         console.log({ top, left, clickY: this.$store.state.window.click.y, clickX: this.$store.state.window.click.x, docWidth: document.body.offsetWidth, containerWidth: this.$refs.containerEl.offsetWidth })
         if ((left + containerWidth) > (document.body.offsetWidth - 20) ) {
           left = document.body.offsetWidth - (containerWidth + 20);
+        }
+        if(left < 0) {
+          left = 10
         }
         if(top < 40) {
           top = 20
@@ -225,6 +238,9 @@ import {asyncDelay} from '~/utils/funcs'
         } catch {}
         try {
           this.$refs.containerEl.removeEventListener('click', this.stopPropagationOnClick);
+        } catch {}
+        try {
+          document.removeEventListener('keyup', this.keyEscape);
         } catch {}
       }
     }

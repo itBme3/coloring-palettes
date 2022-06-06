@@ -14,13 +14,14 @@
           name="steps"
           v-model="steps"
           :step="mixType === 'random' ? 10 : 3"
-          class="w-full py-1 border-none ring-0 outline-none focus-visible:border-0 focus-visible:ring-0 focus-visible:outline-none"
+          class="w-full max-w-xl py-1 border-none ring-0 outline-none focus-visible:border-0 focus-visible:ring-0 focus-visible:outline-none"
         />
       </div>
       <div class="flex items-center mt-2 relative">
         <SelectColor
           v-if="selectedColors.length < maxSelected"
           @update="e => {
+            selectedColors.shift()
             selectedColors.unshift(e)
           }"
           @color="e => selectedColors.unshift(e)"
@@ -66,7 +67,6 @@
 </template>
 <script>
 import draggable from 'vuedraggable';
-import { asyncDelay } from '../utils/funcs';
 import Popover from './Popover.vue';
 export default {
   components: { draggable, Popover },

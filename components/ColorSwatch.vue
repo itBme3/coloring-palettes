@@ -98,7 +98,7 @@
       
     </template>
     <PopoverAction
-      v-if="activeActions && activeActions.join && activeActions.join('') === 'color'"
+      v-if="updateColorSwatchClick || (activeActions && activeActions.join && activeActions.join('') === 'color')"
       key="changeColor"
       ref="colorPopover"
       :item="color"

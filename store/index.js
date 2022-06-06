@@ -22,6 +22,7 @@ export const mutations = {
 
   newPalette(state, params) {
     const { colors = [], name = `New Palette`, handle = 'new-palette', id = uuidv4() } = params || {};
+    console.log({params})
     if (!state?.stored?.palettes?.length) {
       state.stored.palettes = initialPalettes;
     }
@@ -102,6 +103,7 @@ export const actions = {
       'setPalettes',
       current.filter((p) => p.id !== id)
     );
+    this.$router.push('/')
   },
 
   addColorToPalette({ dispatch }, params) {
@@ -127,7 +129,7 @@ export const actions = {
       return alert(`${JSON.stringify(palette)} is not accepted palette`)
     }
     const d = new Date();
-    let name = `${palette.name} (${d.toLocaleDateString(d).split('/').join('-')} ${d.toLocaleTimeString().split(' ').join('')}`;
+    let name = `${palette.name} (${d.toLocaleDateString(d).split('/').join('-')} ${d.toLocaleTimeString().split(' ').join('')})`;
     const nameAndHandle = generatePaletteName(this.getters.storedPalettes, name, handleize(name));
     const newPalette = {
       ...palette,

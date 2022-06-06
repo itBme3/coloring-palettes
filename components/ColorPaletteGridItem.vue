@@ -91,6 +91,10 @@ export default {
       type: String,
       default: null,
     },
+    newPalette: {
+      type: Object,
+      default: () => null
+    },  
     itemStyle: {
       type: String,
       default: 'standard',
@@ -127,9 +131,9 @@ export default {
       deletedPalettes: 'deletedPalettes',
     }),
     palette() {
-      return (
-        this.storedPalettes?.filter((p) => p.id === this.paletteId)[0] || null
-      );
+      return !!this.newPalette 
+        ? this.newPalette
+        : this.storedPalettes?.filter((p) => p.id === this.paletteId)[0] || null;
     },
   },
   methods: {

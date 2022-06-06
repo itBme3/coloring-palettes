@@ -1,3 +1,3 @@
 <template>
-<ColorPalettes class="page" />
+<ColorPalettes class="page mx-auto max-w-6xl" />
 </template>
