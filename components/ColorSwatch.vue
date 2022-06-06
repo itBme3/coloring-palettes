@@ -217,9 +217,6 @@ export default defineComponent({
                 : lightText;
             return `rgba(${chroma(textColor).rgba().slice(0, 3).join(", ")}, var(--tw-text-opacity))`;
         },
-        log(e) {
-            console.log(e);
-        },
         handleAction(action) {
             if (this.$refs[`${action}Popover`] && this.$refs[`${action}Popover`][0] && this.$refs[`${action}Popover`][0].show && !this.onlyEmit) {
                 this.$refs[`${action}Popover`][0].show();

@@ -22,7 +22,6 @@ export const mutations = {
 
   newPalette(state, params) {
     const { colors = [], name = `New Palette`, handle = 'new-palette', id = uuidv4() } = params || {};
-    console.log({params})
     if (!state?.stored?.palettes?.length) {
       state.stored.palettes = initialPalettes;
     }
@@ -113,7 +112,6 @@ export const actions = {
         this.getters.storedPalettes?.filter((p) => p.id === paletteId)[0]
       )
     );
-  console.log({palette})
     if (!palette) {
       return;
     }

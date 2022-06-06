@@ -137,9 +137,6 @@ import { v4 as uuidv4 } from 'uuid';
     },
     methods: {
       uid: uuidv4,
-      log(e) {
-        console.log(e)
-      },
       emitSelection(e, name = 'color') {
         if(this.view === 'custom') {
           return this.$emit(name, e)

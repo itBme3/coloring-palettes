@@ -41,7 +41,6 @@ export default {
       this.$store.commit('window/setScrolling')
     },
     onClick(e) {
-      console.log({ e })
       this.$store.commit('window/setClick', e)
     }
   }

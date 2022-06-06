@@ -114,7 +114,6 @@
     }),
     watch: {
       '$route.path'() {
-        console.log('path changed')
         this.showing = false
         this.hide()
       },

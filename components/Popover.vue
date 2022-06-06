@@ -155,11 +155,9 @@ import {asyncDelay} from '~/utils/funcs'
     beforeUnmount() {
       this.removeListeners();
       this.hide();
-      console.log('before unmount')
     },
     methods: {
       triggerClicked(e) {
-        console.log('triggerClicked')
         this.stopPropagationOnClick(e, this.closeOnClick);
         this.showing = !this.showing
         this.setContainerPosition()
@@ -171,7 +169,6 @@ import {asyncDelay} from '~/utils/funcs'
       },
       keyEscape(e) {
         if(!this.showing) { return }
-        console.log({e})
         if (e.keyCode == 27 || e.key === 'Enter') {
           this.showing = false
           this.hide();
@@ -201,7 +198,6 @@ import {asyncDelay} from '~/utils/funcs'
           : this.$refs.containerEl.offsetHeight;
         let top = this.$store.state.window.click.y;
         let left = this.$store.state.window.click.x - (containerWidth * .5);
-        console.log({ top, left, clickY: this.$store.state.window.click.y, clickX: this.$store.state.window.click.x, docWidth: document.body.offsetWidth, containerWidth: this.$refs.containerEl.offsetWidth })
         if ((left + containerWidth) > (document.body.offsetWidth - 20) ) {
           left = document.body.offsetWidth - (containerWidth + 20);
         }

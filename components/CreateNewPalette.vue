@@ -81,7 +81,6 @@ export default {
   methods: {
     keyup(e) {
       if(this.name === null) { return }
-      console.log({e})
       if (e.keyCode === 27) {
         this.resetNewPalette();
         e.stopPropagation();
